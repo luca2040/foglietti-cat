@@ -11,7 +11,7 @@ class new_pdf_parser(BaseBlobParser):
     def lazy_parse(self, blob):
         parsed_text, parsed_tables = parse_pdf(blob, "TABELLA")
 
-        yield Document(page_content=parsed_text , metadata={"tables": parsed_tables})
+        yield Document(page_content=parsed_text, metadata={"tables": parsed_tables})
 
 
 def replace_text(text_to_replace):
@@ -65,4 +65,4 @@ def parse_pdf(file_blob, table_name):
     # all_text
     # tables_text
 
-    return all_text, tables_text
+    return all_text, [{"table": table, "embed": None} for table in tables_text]

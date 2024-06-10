@@ -1,4 +1,6 @@
 from typing import List
+from numpy import dot
+from numpy.linalg import norm
 
 from cat.looking_glass.cheshire_cat import CheshireCat
 
@@ -18,3 +20,7 @@ def names_from_metadata(cat: CheshireCat) -> List[str]:
             name_list.append(metadata_name)
 
     return name_list
+
+
+def cosine_similarity(query: List, point: List) -> float:
+    return dot(query, point) / (norm(query) * norm(point))
