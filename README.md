@@ -30,3 +30,44 @@ Use the CheshireCat AI to explain and read medicine informations
 - Organizzazione del lavoro su git:
   - main -> conserva il codice che funziona in attesa di ulteriori merge
   - deve essere staccato un branch per ogni task, nuovo branch -> nuova task
+
+# 10/06/2024
+
+Migliorato l'upload dei file tramite API del gatto.
+
+File: /CheshireCatAPI/uploadfile.py
+```python
+def upload_file(
+    filepath: str,
+    filename: str,
+    url: str,
+    stream=None,
+    user="user",
+    type="text/plain",
+) -> any:
+
+    files = {"file": (filename, stream or open(filepath, "rb"), type)}
+    data = {"chunk_size": "", "chunk_overlap": ""}
+
+    headers = {"accept": "application/json", "user_id": user}
+
+    response = requests.post(url, headers=headers, files=files, data=data)
+
+    return response
+```
+
+Per capire quanto viene ricevuta una risposta viene aperta una websocket con lo stesso nome utente di quello usato per fare l'upload, e si aspetta la risposta del gatto.
+
+File: /CheshireCatAPI/websocket_functions.py
+```python
+def on_message(message: str) -> None:
+    json_message = json.loads(message)
+
+    if json_message["type"] == "notification":
+        content_message: str = json_message["content"]
+
+        log(content_message, "INFO")
+
+        if content_message.startswith(config.rabbit_finished_message):
+            config.message_called()
+```
