@@ -1,0 +1,15 @@
+{
+    "websocket": {
+        "base_url": "localhost",
+        "port": 1865,
+        "user_id": "upload_websocket",
+        "auth_key": "",
+        "secure_connection": 0
+    },
+    "rabbithole": {
+        "url": "http://localhost:1865/rabbithole/",
+        "finished_message": "Finished reading "
+    },
+    "folder": "files/",
+    "log_file": "log.txt"
+}
