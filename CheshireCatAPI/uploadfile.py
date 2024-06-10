@@ -2,13 +2,13 @@ import requests
 
 
 def upload_file(
-    filepath,
-    filename,
+    filepath: str,
+    filename: str,
+    url: str,
     stream=None,
     user="user",
     type="text/plain",
-    url="http://localhost:1865/rabbithole/",
-):
+) -> any:
 
     files = {"file": (filename, stream or open(filepath, "rb"), type)}
     data = {"chunk_size": "", "chunk_overlap": ""}
