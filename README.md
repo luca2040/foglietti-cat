@@ -33,6 +33,7 @@ Use the CheshireCat AI to explain and read medicine informations
 
 # 10/06/2024
 
+# Branch better-upload
 Migliorato l'upload dei file tramite API del gatto.
 
 File: /CheshireCatAPI/uploadfile.py
