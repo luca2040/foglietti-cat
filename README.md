@@ -72,3 +72,81 @@ def on_message(message: str) -> None:
         if content_message.startswith(config.rabbit_finished_message):
             config.message_called()
 ```
+
+# branch table-embedding
+
+Per poter selezionare solamente le tabelle a cui si sta facendo riferimento è necessario calcolare il vettore di ognuna.
+Dato il numero elevato dei point per documento è stata creata una classe che mantiene in memoria i punti di certe query che si ripetono ed evita di ri calcolare il vettore ogni volta.
+
+File: /CheshireCat/plugins/CC_plugin_foglietti_illustrativi/optimized_embedder.py
+```python
+class optimized_embedder:
+    def init(self, cat: CheshireCat) -> None:
+        self.cat = cat
+        self.stored_points = {}
+        self.last_filename = None
+
+    def embed_table(self, query: str, filename: str) -> List[float]:
+        query_hash = hashlib.sha256(query.encode("UTF-8")).hexdigest()
+
+        if filename != self.last_filename:
+            self.last_filename = filename
+            self.stored_points = {}
+
+        if query_hash not in self.stored_points.keys():
+            query_embed = self.cat.embedder.embed_documents([query])[0]
+            self.stored_points.update({query_hash: query_embed})
+
+        return self.stored_points[query_hash]
+```
+
+è stata aggiunta la funzione di cosine similarity
+
+File: /CheshireCat/plugins/CC_plugin_foglietti_illustrativi/functions.py
+```python
+def cosine_similarity(query: List, point: List) -> float:
+    return dot(query, point) / (norm(query) * norm(point))
+```
+
+Il parser ora salva nei metadata un dizionario composto da tabella e embed di essa per ogni tabella, in modo da poter salvare l'embed di ogni tabella nel metadata del point.
+
+File: /CheshireCat/plugins/CC_plugin_foglietti_illustrativi/new_pdf_parser.py
+```python
+return all_text, [{"table": table, "embed": None} for table in tables_text]
+```
+
+Nell'hook @before_rabbithole_insert_memory si fa l'embed della tabella usando la classe optimized_embedder spiegata prima.
+
+File: /CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py
+```python
+@hook
+def before_rabbithole_insert_memory(doc, cat):
+
+    if "tables" in doc.metadata.keys():
+        for table in doc.metadata["tables"]:
+            if not table["embed"]:
+                table_text = table["table"]
+
+                table_embed = cat_embed.embed_table(table_text, doc.metadata["source"])
+                table["embed"] = table_embed
+
+    return doc
+```
+
+Nell'hook @after_cat_recalls_memories si è aggiunta la parte per calcolare la similarità tra l'embed della tabella e la query per selezionare solo la migliore.
+
+File: /CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py
+```python
+        if "tables" in metadata.keys():
+            max_score = 0
+            best_table = ""
+
+            for table in metadata["tables"]:
+                score = cosine_similarity(user_query, table["embed"])
+                if score > max_score:
+                    max_score = score
+                    best_table = table["table"]
+
+            dec_mem[0][0].page_content += "\n" + best_table
+```
+
