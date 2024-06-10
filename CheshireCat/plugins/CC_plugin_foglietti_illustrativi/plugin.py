@@ -1,7 +1,7 @@
 from cat.mad_hatter.decorators import hook, tool
 from cat.plugins.CC_plugin_foglietti_illustrativi.functions import *
 from cat.plugins.CC_plugin_foglietti_illustrativi.new_pdf_parser import new_pdf_parser
-
+from cat.plugins.CC_plugin_foglietti_illustrativi.optimized_embedder import cat_embed
 
 med_name = ""
 
@@ -24,7 +24,23 @@ def rabbithole_instantiates_parsers(file_handlers, cat):
 
     file_handlers["application/pdf"] = new_pdf_parser()
 
+    cat_embed.init(cat)
+
     return file_handlers
+
+
+@hook
+def before_rabbithole_insert_memory(doc, cat):
+
+    if "tables" in doc.metadata.keys():
+        for table in doc.metadata["tables"]:
+            if not table["embed"]:
+                table_text = table["table"]
+
+                table_embed = cat_embed.embed_table(table_text, doc.metadata["source"])
+                table["embed"] = table_embed
+
+    return doc
 
 
 @hook
@@ -51,6 +67,8 @@ def before_cat_recalls_declarative_memories(declarative_recall_config, cat):
 @hook
 def after_cat_recalls_memories(cat):
     dec_mem = cat.working_memory.declarative_memories
+    user_message = cat.working_memory.user_message_json.text
+    user_query = cat.embedder.embed_query(user_message)
 
     if dec_mem:
         document = dec_mem[0][0]
@@ -58,8 +76,16 @@ def after_cat_recalls_memories(cat):
         metadata = document.metadata
 
         if "tables" in metadata.keys():
+            max_score = 0
+            best_table = ""
+
             for table in metadata["tables"]:
-                dec_mem[0][0].page_content += "\n" + table
+                score = cosine_similarity(user_query, table["embed"])
+                if score > max_score:
+                    max_score = score
+                    best_table = table["table"]
+
+            dec_mem[0][0].page_content += "\n" + best_table
 
 
 @tool(return_direct=True)
