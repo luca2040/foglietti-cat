@@ -2,7 +2,7 @@
 
 Use the CheshireCat AI to explain and read medicine informations
 
-# Argomenti riunione 07/06/2024
+## Argomenti riunione 07/06/2024
 
 (R) -> Richieste
 
@@ -32,9 +32,9 @@ Use the CheshireCat AI to explain and read medicine informations
   - main -> conserva il codice che funziona in attesa di ulteriori merge
   - deve essere staccato un branch per ogni task, nuovo branch -> nuova task
 
-# 10/06/2024
+## 10/06/2024
 
-# Branch better-upload
+### Branch better-upload
 
 Migliorato l'upload dei file tramite API del gatto.
 
@@ -59,7 +59,7 @@ def upload_file(
 
     return response
 ```
-
+---
 Per capire quanto viene ricevuta una risposta viene aperta una websocket con lo stesso nome utente di quello usato per fare l'upload, e si aspetta la risposta del gatto.
 
 [websocket_functions.py](/CheshireCatAPI/websocket_functions.py)
@@ -77,7 +77,7 @@ def on_message(message: str) -> None:
             config.message_called()
 ```
 
-# branch table-embedding
+### branch table-embedding
 
 Per poter selezionare solamente le tabelle a cui si sta facendo riferimento è necessario calcolare il vettore di ognuna.
 Dato il numero elevato dei point per documento è stata creata una classe che mantiene in memoria i punti di certe query che si ripetono ed evita di ri calcolare il vettore ogni volta.
@@ -105,6 +105,8 @@ class optimized_embedder:
         return self.stored_points[query_hash]
 ```
 
+---
+
 è stata aggiunta la funzione di cosine similarity
 
 [functions.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/functions.py)
@@ -114,6 +116,8 @@ def cosine_similarity(query: List, point: List) -> float:
     return dot(query, point) / (norm(query) * norm(point))
 ```
 
+---
+
 Il parser ora salva nei metadata un dizionario composto da tabella e embed di essa per ogni tabella, in modo da poter salvare l'embed di ogni tabella nel metadata del point.
 
 [new_pdf_parser.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/new_pdf_parser.py)
@@ -121,6 +125,8 @@ Il parser ora salva nei metadata un dizionario composto da tabella e embed di es
 ```python
 return all_text, [{"table": table, "embed": None} for table in tables_text]
 ```
+
+---
 
 Nell'hook @before_rabbithole_insert_memory si fa l'embed della tabella usando la classe optimized_embedder spiegata prima.
 
@@ -148,6 +154,8 @@ def before_rabbithole_insert_memory(doc, cat):
     return doc
 ```
 
+---
+
 Nell'hook @after_cat_recalls_memories si è aggiunta la parte per calcolare la similarità tra l'embed della tabella e la query per selezionare solo la migliore.
 
 [plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
@@ -166,9 +174,9 @@ Nell'hook @after_cat_recalls_memories si è aggiunta la parte per calcolare la s
             dec_mem[0][0].page_content += "\n" + best_table
 ```
 
-# 11/06/2024
+## 11/06/2024
 
-# prefix per obbligare il gatto a rispondere solo ad un medicinale
+### prefix per obbligare il gatto a rispondere solo ad un medicinale
 
 [plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
 
