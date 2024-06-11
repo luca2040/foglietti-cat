@@ -3,17 +3,21 @@ from cat.plugins.CC_plugin_foglietti_illustrativi.functions import *
 from cat.plugins.CC_plugin_foglietti_illustrativi.new_pdf_parser import new_pdf_parser
 from cat.plugins.CC_plugin_foglietti_illustrativi.optimized_embedder import cat_embed
 
+med_filename = ""
 med_name = ""
 
 
 @hook
 def agent_prompt_prefix(prefix, cat):
 
-    prefix = """
+    prefix = f"""
     Sei un farmacista, e rispondi in modo professionale.
     Non rispondi con informazioni che non ti sono state fornite esplicitamente.
     Non rispondi a domande inappropriate.
     Ad ogni domanda rispondi nel modo più completo e preciso possibile.
+
+    TU CONOSCI SOLAMENTE QUESTA MEDICINA: "{med_name}" , NON RISPONDI A NESSUNA DOMANDA SU ALTRI FARMACI
+    SE TI VIENE CHIESTO SE CONOSCI ALTRE MEDICINE DEVI DIRE DI NO, E SE TI VIENE CHIESTO DI APPROFONDIRE DEVI DIRE DI NO
     """
 
     return prefix
@@ -52,8 +56,8 @@ def before_rabbithole_insert_memory(doc, cat):
 
 @hook
 def before_cat_recalls_declarative_memories(declarative_recall_config, cat):
-    global med_name
-    medicine = med_name
+    global med_filename
+    medicine = med_filename
 
     # history = cat.working_memory.history
     # max_index = len(history) - 1
@@ -99,7 +103,8 @@ def after_cat_recalls_memories(cat):
 def how_many_medicines_known(tool_input, cat):
     """Reply only to the question "How many medicines you know?" or to others which are stricly similar.
     Ignore generic questions about medicines.
-    Input is always None"""
+    Input is always None
+    Use this tool only if the user specifies to use a tool using #use tool#"""
 
     names_list = names_from_metadata(cat)
 
@@ -111,11 +116,15 @@ def how_many_medicines_known(tool_input, cat):
 
 
 @tool(return_direct=True)
-def filename(tool_input, cat):
+def filename(tool_input: str, cat):
     """Reply to a file name, ONLY if specified using the word "file"
-    Input is the file name"""
+    Input is the file name
+    Use this tool only if the user specifies to use a tool using #use tool#"""
 
+    global med_filename
     global med_name
-    med_name = tool_input
 
-    return med_name
+    med_filename = tool_input
+    med_name = tool_input.split(".")[0]
+
+    return med_filename
