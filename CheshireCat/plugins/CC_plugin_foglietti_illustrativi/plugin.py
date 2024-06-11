@@ -35,10 +35,17 @@ def before_rabbithole_insert_memory(doc, cat):
     if "tables" in doc.metadata.keys():
         for table in doc.metadata["tables"]:
             if not table["embed"]:
-                table_text = table["table"]
+                table_text = (
+                    table["table"]
+                    .replace("(", " ")
+                    .replace(")", " ")
+                    .replace("[", " ")
+                    .replace("]", " ")
+                )
 
-                table_embed = cat_embed.embed_table(table_text, doc.metadata["source"])
-                table["embed"] = table_embed
+                table["embed"] = cat_embed.embed_table(
+                    table_text, doc.metadata["source"]
+                )
 
     return doc
 
