@@ -177,3 +177,8 @@ static
 static/
 cc_vscode_debugpy
 cc_vscode_debugpy/
+
+files
+files/
+*.pdf
+*.PDF
