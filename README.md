@@ -125,10 +125,17 @@ def before_rabbithole_insert_memory(doc, cat):
     if "tables" in doc.metadata.keys():
         for table in doc.metadata["tables"]:
             if not table["embed"]:
-                table_text = table["table"]
+                table_text = (
+                    table["table"]
+                    .replace("(", " ")
+                    .replace(")", " ")
+                    .replace("[", " ")
+                    .replace("]", " ")
+                )
 
-                table_embed = cat_embed.embed_table(table_text, doc.metadata["source"])
-                table["embed"] = table_embed
+                table["embed"] = cat_embed.embed_table(
+                    table_text, doc.metadata["source"]
+                )
 
     return doc
 ```
@@ -150,3 +157,25 @@ Nell'hook @after_cat_recalls_memories si è aggiunta la parte per calcolare la s
             dec_mem[0][0].page_content += "\n" + best_table
 ```
 
+# 11/06/2024
+
+# Classificazione tabelle pdf
+
+Esempio di pdf parsato correttamente
+
+<p align="center">
+  <img width="65%" height="65%" src="https://github.com/luca2040/foglietti-cat/assets/152313871/f5b04126-7511-4797-b01a-fa3613101a02">
+</p>
+
+---
+
+Esempio di pdf parsato in modo sbagliato
+
+<p align="center">
+  <img width="65%" height="65%" src="https://github.com/luca2040/foglietti-cat/assets/152313871/6a0b8252-6432-494c-8281-6a8cbf5101b4">
+</p>
+
+- Non importa quante tabelle ci siano, l'importante è che la tabella sia strutturata.
+- Se in una riga ci sono delle celle unite meglio se non cè nient'altro.
+- Se la stessa tabella è divisa in più pagine ma senza riportare gli indici su entrambe le pagine non viene parsata correttamente.
+- Le celle della tabella devono essere separate da linee.
