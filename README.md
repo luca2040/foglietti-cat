@@ -1,46 +1,43 @@
 # foglietti-cat
 
-Use the CheshireCat AI to explain and read medicine informations
+Repository del plugin per il framework CheshireCat per riassumere e dare informazioni a riguardo dei foglietti illustrativi dei medicinali.<br/>
+La repo è divisa in due parti: 
+- **CheshireCat** : Container docker e plugin CheshireCat
+- **CheshireCatAPI** : Upload di pdf a CheshireCat tramite API
 
-# Argomenti riunione 07/06/2024
+### **[Cambiamenti nel tempo](/history.md)**
+### **[Problemi e cose varie](/description.md)**
 
-(R) -> Richieste
+---
+ ## CheshireCatAPI
 
-- Siamo riusciti ad implementare la callback durante l'upload dei file
+ L'entry point è il file [API_upload.py](/CheshireCatAPI/API_upload.py)<br/>
+ ### **Funzionamento:**<br/>
+ Prima di iniziare a fare l'upload dei file viene aperta una websocket con un nome utente specifico per il caricamento dei file in modo da poter ricevere i callback al completamento del caricamento dei PDF.<br/>
+ Per la websocket si è usata la libreria del gatto:
+ ```
+cheshire_cat_api
+```
 
-- Fornire la documentazione su un repository sullo stato attuale del lavoro, da tenere aggiornato (R)
-
-- Il gatto non dà infomrazioni di farmaci di cui non ha la conoscenza in MODO DETERMINISTICO (R)
-
-- L'estrazione del nome del farmaco deve includere un match tra l'input fornito e l'elenco dei farmaci presenti (anche riguardante i vari farmaci disponibili) (R)
-
-- Far evitare al gatto di rispondere a domande la cui risposta non è specificata direttamente nei foglietti illustrativi (per esempio far rispondere alla domanda "Qual è la differenza tra l'aspirina e l'acetilcisteina?" ?).
-
-- Non popolare la memoria dichiarativa; lavorare sul miglioramento della funzione di distanza e predisporre un livello di soglia per lo score al di sotto della quale il gatto non risponde. (R)
-
-- Non far rispondere al gatto a domande riguardanti un farmaco se il context della domanda è impostato su un altro farmaco ( Per esempio se gli ho detto di parlarmi dell'aspirina, non mi risponde a domande sulla tachipirina) (R)
-
-- Approfondire l'hack del # per escudere una specifica parte del prompt dalla domanda (es. # non usare il tool #).
-
-- Per le informazioni tabulari bisogna:
-
-  - Spiegare nel prefix la struttura con cui viene fornita la tabella
-  - Struttura le informazioni per header di colonna e di riga e passare questa struttura al llm per parsare il risultato finale
-  - Documentare in un pdf degli esempi di tabelle analizzate dal parser e descrivere gli eventuali problemi (R)
-
-- Organizzazione del lavoro su git:
-  - main -> conserva il codice che funziona in attesa di ulteriori merge
-  - deve essere staccato un branch per ogni task, nuovo branch -> nuova task
-
-# 10/06/2024
-
-# Branch better-upload
-
-Migliorato l'upload dei file tramite API del gatto.
-
-[uploadfile.py](/CheshireCatAPI/uploadfile.py)
-
+Esempio di connessione tramite websocket ([API_upload.py](/CheshireCatAPI/API_upload.py)):
 ```python
+import cheshire_cat_api as ccat
+
+cat_client = ccat.CatClient(
+    config=config,
+    on_open=on_open,
+    on_close=on_close,
+    on_message=on_message,
+    on_error=on_error,
+)
+
+cat_client.connect_ws()
+```
+Successivamente viene inviato un file tramite API del gatto usando la libreria requests.
+[uploadfile.py](/CheshireCatAPI/uploadfile.py)
+```python
+import requests
+
 def upload_file(
     filepath: str,
     filename: str,
@@ -59,11 +56,7 @@ def upload_file(
 
     return response
 ```
-
-Per capire quanto viene ricevuta una risposta viene aperta una websocket con lo stesso nome utente di quello usato per fare l'upload, e si aspetta la risposta del gatto.
-
-[websocket_functions.py](/CheshireCatAPI/websocket_functions.py)
-
+Per ricevere la callback del caricamento completo del file si usa la funzione on_message ([websocket_functions.py](/CheshireCatAPI/websocket_functions.py)) per ricevere il testo inviato dal gatto (Purtroppo non è strutturato).
 ```python
 def on_message(message: str) -> None:
     json_message = json.loads(message)
@@ -76,56 +69,108 @@ def on_message(message: str) -> None:
         if content_message.startswith(config.rabbit_finished_message):
             config.message_called()
 ```
+Appena il file viene caricato si continua per ogni file presenti nella cartella di input.
 
-# branch table-embedding
+### **Configurazione:**<br/>
+Per poter configurare l'upload è presente il file (config.json)[/CheshireCatAPI/config.json].
+```json
+{
+    "websocket": {
+        "base_url": "localhost",
+        "port": 1865,
+        "user_id": "upload_websocket",
+        "auth_key": "",
+        "secure_connection": 0
+    },
+    "rabbithole": {
+        "url": "http://localhost:1865/rabbithole/",
+        "finished_message": "Finished reading "
+    },
+    "folder": "files/",
+    "log_file": "log.txt"
+}
+```
+#### Websocket:
+- *base_url*: url di base del gatto per la websocket
+- *port*: la porta con cui verrà aperta la websocket
+- *user_id*: il nome utente che verrà usato per aprire la websocket e inviare i file al gatto
+- *auth_key* e *secure_connection*: altre configurazioni della websocket, non utilizzate nell'esempio
+#### Rabbithole:
+- *url*: url dell'API di upload file del gatto
+- *finished_message*: questa è la stringa che il gatto inserisce all'inizio del messaggio per indicare che ha finito il caricamento di uno specifico file. Qua viene usata per capire se la lettura di un file è terminata
+#### Altre configurazioni:
+- *folder*: path alla cartella che contiene i PDF da caricare
+- *log_file*: path al file di log
 
-Per poter selezionare solamente le tabelle a cui si sta facendo riferimento è necessario calcolare il vettore di ognuna.
-Dato il numero elevato dei point per documento è stata creata una classe che mantiene in memoria i punti di certe query che si ripetono ed evita di ri calcolare il vettore ogni volta.
+## CheshireCat - [docker compose](/CheshireCat/docker-compose.yml)
 
-[optimized_embedder.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/optimized_embedder.py)
-
-```python
-class optimized_embedder:
-    def init(self, cat: CheshireCat) -> None:
-        self.cat = cat
-        self.stored_points = {}
-        self.last_filename = None
-
-    def embed_table(self, query: str, filename: str) -> List[float]:
-        query_hash = hashlib.sha256(query.encode("UTF-8")).hexdigest()
-
-        if filename != self.last_filename:
-            self.last_filename = filename
-            self.stored_points = {}
-
-        if query_hash not in self.stored_points.keys():
-            query_embed = self.cat.embedder.embed_documents([query])[0]
-            self.stored_points.update({query_hash: query_embed})
-
-        return self.stored_points[query_hash]
+Per la libreria **tabula** usata per fare il parsing di tabelle nei PDF serve Java, quindi si è usato questo comando nel container del gatto:
+```yaml
+  command: bash -c "apt update && apt install -y default-jre && python3 -m cat.main"
+```
+---
+Per poter usare Qdrant serve:
+- Indicarlo nelle dipendenze
+```yaml
+  depends_on:
+    - cheshire-cat-vector-memory
+```
+- Impostarlo nelle variabili d'ambiente
+```yaml
+  environment:
+    - PYTHONUNBUFFERED=1
+    - WATCHFILES_FORCE_POLLING=true
+    - CORE_HOST=${CORE_HOST:-localhost}
+    - CORE_PORT=${CORE_PORT:-1865}
+    - QDRANT_HOST=${QDRANT_HOST:-cheshire_cat_vector_memory}
+    - QDRANT_PORT=${QDRANT_PORT:-6333}
+    - CORE_USE_SECURE_PROTOCOLS=${CORE_USE_SECURE_PROTOCOLS:-}
+    - API_KEY=${API_KEY:-}
+    - LOG_LEVEL=${LOG_LEVEL:-WARNING}
+    - DEBUG=${DEBUG:-true}
+    - SAVE_MEMORY_SNAPSHOTS=${SAVE_MEMORY_SNAPSHOTS:-false}
+```
+- Aggiungere il container
+```yaml
+  cheshire-cat-vector-memory:
+    image: qdrant/qdrant:v1.9.1
+    container_name: cheshire_cat_vector_memory
+    expose:
+      - 6333
+    volumes:
+      - ./cat/long_term_memory/vector:/qdrant/storage
+    restart: unless-stopped
 ```
 
-è stata aggiunta la funzione di cosine similarity
+## CheshireCat - [plugin](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
 
-[functions.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/functions.py)
-
-```python
-def cosine_similarity(query: List, point: List) -> float:
-    return dot(query, point) / (norm(query) * norm(point))
-```
-
-Il parser ora salva nei metadata un dizionario composto da tabella e embed di essa per ogni tabella, in modo da poter salvare l'embed di ogni tabella nel metadata del point.
-
-[new_pdf_parser.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/new_pdf_parser.py)
-
-```python
-return all_text, [{"table": table, "embed": None} for table in tables_text]
-```
-
-Nell'hook @before_rabbithole_insert_memory si fa l'embed della tabella usando la classe optimized_embedder spiegata prima.
+Durante la fase di test era necessario poter specificare il nome della medicina selezionata e poter ricevere la lista di tutti i file parsati.
+Per fare questo sono stati creati due tool: 
 
 [plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
+```python
+@tool(return_direct=True)
+def how_many_medicines_known(tool_input, cat):
+    """Reply only to the question "How many medicines you know?" or to others which are stricly similar.
+    Ignore generic questions about medicines.
+    Input is always None
+    Use this tool only if the user specifies to use a tool using #use tool#"""
 
+@tool(return_direct=True)
+def filename(tool_input: str, cat):
+    """Reply to a file name, ONLY if specified using the word "file"
+    Input is the file name
+    Use this tool only if the user specifies to use a tool using #use tool#"""
+```
+---
+Per poter parsare correttamente i PDF si è dovuta creare una [nuova classe](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/new_pdf_parser.py), la quale parsa i PDF in due passaggi:
+- Nel primo passaggio tutto il testo contenuto nel PDF viene estratto tramite la libreria *PyPDF2*
+- Nel secondo passaggio si usa la libreria *tabula* per estrarre solamente le tabelle dal file e poi vengono formattate in modo che il gatto le capisca.
+Dopo questi passaggi nel metadata del *Document* di ritorno vengono inserite le tabelle.
+
+Dopo il parsing, tramite l'hook *before_rabbithole_insert_memory* viene generato un embedding per ogni tabella e viene salvato nei metadata del *Document*
+
+[plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
 ```python
 @hook
 def before_rabbithole_insert_memory(doc, cat):
@@ -148,64 +193,21 @@ def before_rabbithole_insert_memory(doc, cat):
     return doc
 ```
 
-Nell'hook @after_cat_recalls_memories si è aggiunta la parte per calcolare la similarità tra l'embed della tabella e la query per selezionare solo la migliore.
+Visto che questi embedding verranno usati per selezionare la tabella richiesta dall'utene viene tolta tutta la formattazione delle tabelle tramite la funzione *replace*<br/>
 
-[plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
-
-```python
-        if "tables" in metadata.keys():
-            max_score = 0
-            best_table = ""
-
-            for table in metadata["tables"]:
-                score = cosine_similarity(user_query, table["embed"])
-                if score > max_score:
-                    max_score = score
-                    best_table = table["table"]
-
-            dec_mem[0][0].page_content += "\n" + best_table
-```
-
-# 11/06/2024
-
-# Classificazione tabelle pdf
-
-Esempio di pdf parsato correttamente
-
-<p align="center">
-  <img width="65%" height="65%" src="https://github.com/luca2040/foglietti-cat/assets/152313871/f5b04126-7511-4797-b01a-fa3613101a02">
-</p>
+Quando viene fatto il retrival dei point vengono selezionate le tabelle apparteneni ai file da cui provengono facendo l'embedding della query e selezionando solo la tabella con score più alto (Quella meno distante secondo la cosine similarity). Tutto questo viene fatto all'interno dell'hook *after_cat_recalls_memories* nel file [plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py).<br/>
 
 ---
 
-Esempio di pdf parsato in modo sbagliato
-
-<p align="center">
-  <img width="65%" height="65%" src="https://github.com/luca2040/foglietti-cat/assets/152313871/6a0b8252-6432-494c-8281-6a8cbf5101b4">
-</p>
-
-- Non importa quante tabelle ci siano, l'importante è che la tabella sia strutturata.
-- Se in una riga ci sono delle celle unite meglio se non cè nient'altro.
-- Se la stessa tabella è divisa in più pagine ma senza riportare gli indici su entrambe le pagine non viene parsata correttamente.
-- Le celle della tabella devono essere separate da linee.
-
-# obbligare il gatto a rispondere solamente ad un farmaco
+Per filtrare solo i point con metadata corretto (Quelli che provengono da uno specifico foglietto illustrativo) si è usato l'hook *before_cat_recalls_declarative_memories*<br/>
 
 [plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
-
 ```python
 @hook
-def agent_prompt_prefix(prefix, cat):
+def before_cat_recalls_declarative_memories(declarative_recall_config, cat):
+    # medicine is the filename or the tag
+    declarative_recall_config["metadata"] = {"source": medicine}
 
-    prefix = f"""
-    Sei un farmacista, e rispondi in modo professionale.
-    Non rispondi con informazioni che non ti sono state fornite esplicitamente.
-    Non rispondi a domande inappropriate.
-    Ad ogni domanda rispondi nel modo più completo e preciso possibile.
-
-    TU CONOSCI SOLAMENTE QUESTA MEDICINA: "{med_name}" , NON RISPONDI A NESSUNA DOMANDA SU ALTRI FARMACI
-    SE TI VIENE CHIESTO SE CONOSCI ALTRE MEDICINE DEVI DIRE DI NO, E SE TI VIENE CHIESTO DI APPROFONDIRE DEVI DIRE DI NO
-    """
-
-    return prefix
+    return declarative_recall_config
 ```
+
