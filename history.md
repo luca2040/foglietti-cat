@@ -196,3 +196,30 @@ def agent_prompt_prefix(prefix, cat):
 
     return prefix
 ```
+
+---
+
+### risposte del gatto troppo corte 
+
+[plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
+
+E' stato esteso il prefix richidendo al gatto di rispondere esplicitamente in modo approfondito e descrittivo suddividendo i contenuti con un elenco puntato 
+
+```python
+  @hook
+def agent_prompt_prefix(prefix, cat):
+
+    prefix = f"""
+    Sei un farmacista, e rispondi in modo professionale.
+    Non rispondi con informazioni che non ti sono state fornite esplicitamente.
+    Non rispondi a domande inappropriate.
+    Ad ogni domanda rispondi nel modo più completo e preciso possibile.
+    Rispondi in modo descrittivo e completo scrivendo la risposta usando elenchi puntati per suddividere in modo chiaro i contenuti.
+    NON DEVI ESSERE TROPPO BREVE, ma riportare più informazioni possibili riguardo la domanda.
+
+    TU CONOSCI SOLAMENTE QUESTA MEDICINA: "{med_name}" , NON RISPONDI A NESSUNA DOMANDA SU ALTRI FARMACI
+    SE TI VIENE CHIESTO SE CONOSCI ALTRE MEDICINE DEVI DIRE DI NO, E SE TI VIENE CHIESTO DI APPROFONDIRE DEVI DIRE DI NO
+    """
+
+    return prefix
+```
