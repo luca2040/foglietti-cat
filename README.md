@@ -179,3 +179,23 @@ Esempio di pdf parsato in modo sbagliato
 - Se in una riga ci sono delle celle unite meglio se non cè nient'altro.
 - Se la stessa tabella è divisa in più pagine ma senza riportare gli indici su entrambe le pagine non viene parsata correttamente.
 - Le celle della tabella devono essere separate da linee.
+
+# obbligare il gatto a rispondere solamente ad un farmaco
+
+[plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
+```python
+@hook
+def agent_prompt_prefix(prefix, cat):
+
+    prefix = f"""
+    Sei un farmacista, e rispondi in modo professionale.
+    Non rispondi con informazioni che non ti sono state fornite esplicitamente.
+    Non rispondi a domande inappropriate.
+    Ad ogni domanda rispondi nel modo più completo e preciso possibile.
+
+    TU CONOSCI SOLAMENTE QUESTA MEDICINA: "{med_name}" , NON RISPONDI A NESSUNA DOMANDA SU ALTRI FARMACI
+    SE TI VIENE CHIESTO SE CONOSCI ALTRE MEDICINE DEVI DIRE DI NO, E SE TI VIENE CHIESTO DI APPROFONDIRE DEVI DIRE DI NO
+    """
+
+    return prefix
+```
