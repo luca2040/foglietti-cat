@@ -36,7 +36,7 @@ Use the CheshireCat AI to explain and read medicine informations
 # Branch better-upload
 Migliorato l'upload dei file tramite API del gatto.
 
-File: /CheshireCatAPI/uploadfile.py
+[uploadfile.py](/CheshireCatAPI/uploadfile.py)
 ```python
 def upload_file(
     filepath: str,
@@ -59,7 +59,7 @@ def upload_file(
 
 Per capire quanto viene ricevuta una risposta viene aperta una websocket con lo stesso nome utente di quello usato per fare l'upload, e si aspetta la risposta del gatto.
 
-File: /CheshireCatAPI/websocket_functions.py
+[websocket_functions.py](/CheshireCatAPI/websocket_functions.py)
 ```python
 def on_message(message: str) -> None:
     json_message = json.loads(message)
@@ -78,7 +78,7 @@ def on_message(message: str) -> None:
 Per poter selezionare solamente le tabelle a cui si sta facendo riferimento è necessario calcolare il vettore di ognuna.
 Dato il numero elevato dei point per documento è stata creata una classe che mantiene in memoria i punti di certe query che si ripetono ed evita di ri calcolare il vettore ogni volta.
 
-File: /CheshireCat/plugins/CC_plugin_foglietti_illustrativi/optimized_embedder.py
+[optimized_embedder.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/optimized_embedder.py)
 ```python
 class optimized_embedder:
     def init(self, cat: CheshireCat) -> None:
@@ -102,7 +102,7 @@ class optimized_embedder:
 
 è stata aggiunta la funzione di cosine similarity
 
-File: /CheshireCat/plugins/CC_plugin_foglietti_illustrativi/functions.py
+[functions.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/functions.py)
 ```python
 def cosine_similarity(query: List, point: List) -> float:
     return dot(query, point) / (norm(query) * norm(point))
@@ -110,14 +110,14 @@ def cosine_similarity(query: List, point: List) -> float:
 
 Il parser ora salva nei metadata un dizionario composto da tabella e embed di essa per ogni tabella, in modo da poter salvare l'embed di ogni tabella nel metadata del point.
 
-File: /CheshireCat/plugins/CC_plugin_foglietti_illustrativi/new_pdf_parser.py
+[new_pdf_parser.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/new_pdf_parser.py)
 ```python
 return all_text, [{"table": table, "embed": None} for table in tables_text]
 ```
 
 Nell'hook @before_rabbithole_insert_memory si fa l'embed della tabella usando la classe optimized_embedder spiegata prima.
 
-File: /CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py
+[plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
 ```python
 @hook
 def before_rabbithole_insert_memory(doc, cat):
@@ -135,7 +135,7 @@ def before_rabbithole_insert_memory(doc, cat):
 
 Nell'hook @after_cat_recalls_memories si è aggiunta la parte per calcolare la similarità tra l'embed della tabella e la query per selezionare solo la migliore.
 
-File: /CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py
+[plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
 ```python
         if "tables" in metadata.keys():
             max_score = 0
