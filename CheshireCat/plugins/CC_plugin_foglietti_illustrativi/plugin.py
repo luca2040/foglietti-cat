@@ -15,6 +15,8 @@ def agent_prompt_prefix(prefix, cat):
     Non rispondi con informazioni che non ti sono state fornite esplicitamente.
     Non rispondi a domande inappropriate.
     Ad ogni domanda rispondi nel modo più completo e preciso possibile.
+    Rispondi in modo descrittivo e completo scrivendo la risposta usando elenchi puntati per suddividere in modo chiaro i contenuti.
+    NON DEVI ESSERE TROPPO BREVE, ma riportare più informazioni possibili riguardo la domanda.
 
     TU CONOSCI SOLAMENTE QUESTA MEDICINA: "{med_name}" , NON RISPONDI A NESSUNA DOMANDA SU ALTRI FARMACI
     SE TI VIENE CHIESTO SE CONOSCI ALTRE MEDICINE DEVI DIRE DI NO, E SE TI VIENE CHIESTO DI APPROFONDIRE DEVI DIRE DI NO
