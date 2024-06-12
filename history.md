@@ -231,3 +231,29 @@ def agent_prompt_prefix(prefix, cat):
 E' stato aggiunto un nuovo requisito da implementare prima che il gatto fornisca la risposta; il comportamento da ottenere consiste, data una lista di parole chiave, di forzare il gatto ad usare precisamente quei termini per fornire una risposta al posto di impiegare altri sinonimi.<br/>
 Una seconda opzione potrebbe essere, al posto di forzare il gatto ad usare quelle parolo specifiche in fase di generazione della risposta, quella di effettuare un controllo a posteriori su di essa per individuare gli eventuali sinonimi impiegati e fare un mappaggio con le parole chiave.<br/>
 Inoltre è stato richiesto di effettuare maggiori prove al fine di testare la correttezza e il livello di precisione dell'output del gatto, magari anche variando il prefix per forzare una maggiore dipendenza al Context Of Documents.
+
+---
+
+### Branch wordlist
+
+In questo branch è stata aggiunta la possibilità di specificare una wordlist di sinonimi da usare per forzare l'uso di alcune specifiche parole.
+
+```python
+@hook
+def agent_prompt_prefix(prefix, cat):
+    with open("/app/cat/wordlist/wordlist.json", "r") as file:
+        wordlist = file.read()
+
+    prefix = f"""
+    ........................
+
+    Nelle tue risposte usa maggiormente queste parole come sinonimi ad altre.
+    {wordlist}
+
+    ........................
+    """
+
+    return prefix
+```
+
+La wordlist viene caricata direttamente dal file json e data nel prefix all'LLM, quindi se si vuole anche specificare delle parole da cambiare, usare certi simboli o mettere link si può specificare nel file json.
