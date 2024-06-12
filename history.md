@@ -257,3 +257,24 @@ def agent_prompt_prefix(prefix, cat):
 ```
 
 La wordlist viene caricata direttamente dal file json e data nel prefix all'LLM, quindi se si vuole anche specificare delle parole da cambiare, usare certi simboli o mettere link si può specificare nel file json.
+
+---
+
+### Hook che vengono richiamati quando non servono
+
+E' stato limitato  lo scenario in cui vengono richiamati degli hook quando si sta in realtà facendo una domanda la cui risposta deve essere basata sulla memoria dichiarativa. (non risolto al 100%, ma ridotto al punto da non essere fastidioso in fase di conversazione) <br/>
+Per farlo è bastato aumentare il valore di soglia (thresold) della memoria procedurale, andando quindi ad evitare che venga agganciato un hook quando lo score del prompt dell'utente sta al di sotto di tale soglia.
+Il thresold è stato impostato a 0.8, e tale scelta è frutto di semplici osservazioni empiriche con cui è stato riportato che l'aggancio del hook avviene correttamente quando lo score è superiore a tale valore.
+
+```python
+  procedural_memory_thresold = 0.8
+
+  // Other code ....
+
+  @hook  
+  def before_cat_recalls_procedural_memories(procedural_recall_config, cat):
+  
+      procedural_recall_config["threshold"] = procedural_memory_thresold
+  
+      return procedural_recall_config
+```
