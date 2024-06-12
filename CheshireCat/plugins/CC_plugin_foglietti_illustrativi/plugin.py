@@ -3,12 +3,16 @@ from cat.plugins.CC_plugin_foglietti_illustrativi.functions import *
 from cat.plugins.CC_plugin_foglietti_illustrativi.new_pdf_parser import new_pdf_parser
 from cat.plugins.CC_plugin_foglietti_illustrativi.optimized_embedder import cat_embed
 
+import json
+
 med_filename = ""
 med_name = ""
 
 
 @hook
 def agent_prompt_prefix(prefix, cat):
+    with open("/app/cat/wordlist/wordlist.json", "r") as file:
+        wordlist = file.read()
 
     prefix = f"""
     Sei un farmacista, e rispondi in modo professionale.
@@ -17,6 +21,9 @@ def agent_prompt_prefix(prefix, cat):
     Ad ogni domanda rispondi nel modo più completo e preciso possibile.
     Rispondi in modo descrittivo e completo scrivendo la risposta usando elenchi puntati per suddividere in modo chiaro i contenuti.
     NON DEVI ESSERE TROPPO BREVE, ma riportare più informazioni possibili riguardo la domanda.
+
+    Nelle tue risposte usa maggiormente queste parole come sinonimi ad altre.
+    {wordlist}
 
     TU CONOSCI SOLAMENTE QUESTA MEDICINA: "{med_name}" , NON RISPONDI A NESSUNA DOMANDA SU ALTRI FARMACI
     SE TI VIENE CHIESTO SE CONOSCI ALTRE MEDICINE DEVI DIRE DI NO, E SE TI VIENE CHIESTO DI APPROFONDIRE DEVI DIRE DI NO
@@ -127,6 +134,10 @@ def filename(tool_input: str, cat):
     global med_name
 
     med_filename = tool_input
-    med_name = tool_input.split(".")[0]
+    med_name = cat.llm(
+        f"""Questo è il nome del foglietto illustrativo di una medicina: {tool_input.split(".")[0]}
+        Come si chiama la medicina?
+        Rispondi solamente col nome della medicina."""
+    )
 
     return med_filename
