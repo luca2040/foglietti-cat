@@ -3,8 +3,6 @@ from cat.plugins.CC_plugin_foglietti_illustrativi.functions import *
 from cat.plugins.CC_plugin_foglietti_illustrativi.new_pdf_parser import new_pdf_parser
 from cat.plugins.CC_plugin_foglietti_illustrativi.optimized_embedder import cat_embed
 
-import json
-
 med_filename = ""
 med_name = ""
 
