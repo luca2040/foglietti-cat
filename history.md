@@ -223,3 +223,11 @@ def agent_prompt_prefix(prefix, cat):
 
     return prefix
 ```
+
+## 12/06/2024
+
+### Riallineamento 
+
+E' stato aggiunto un nuovo requisito da implementare prima che il gatto fornisca la risposta; il comportamento da ottenere consiste, data una lista di parole chiave, di forzare il gatto ad usare precisamente quei termini per fornire una risposta al posto di impiegare altri sinonimi.<br/>
+Una seconda opzione potrebbe essere, al posto di forzare il gatto ad usare quelle parolo specifiche in fase di generazione della risposta, quella di effettuare un controllo a posteriori su di essa per individuare gli eventuali sinonimi impiegati e fare un mappaggio con le parole chiave.<br/>
+Inoltre è stato richiesto di effettuare maggiori prove al fine di testare la correttezza e il livello di precisione dell'output del gatto, magari anche variando il prefix per forzare una maggiore dipendenza al Context Of Documents.
