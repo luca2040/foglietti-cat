@@ -6,6 +6,7 @@ from cat.plugins.CC_plugin_foglietti_illustrativi.optimized_embedder import cat_
 med_filename = ""
 med_name = ""
 
+procedural_memory_thresold = 0.8
 
 @hook
 def agent_prompt_prefix(prefix, cat):
@@ -76,6 +77,13 @@ def before_cat_recalls_declarative_memories(declarative_recall_config, cat):
 
     return declarative_recall_config
 
+@hook  
+def before_cat_recalls_procedural_memories(procedural_recall_config, cat):
+
+    procedural_recall_config["threshold"] = procedural_memory_thresold
+
+    return procedural_recall_config
+
 
 @hook
 def after_cat_recalls_memories(cat):
@@ -103,10 +111,10 @@ def after_cat_recalls_memories(cat):
 
 @tool(return_direct=True)
 def how_many_medicines_known(tool_input, cat):
-    """Reply only to the question "How many medicines you know?" or to others which are stricly similar.
-    Ignore generic questions about medicines.
-    Input is always None
-    Use this tool only if the user specifies to use a tool using #use tool#"""
+    """
+    Risponde SOLTANTO se il prompt dell'utente è uguale a "Quali farmaci conosci?" e mai a domande simili. 
+    L'input è sempre None.
+    """
 
     names_list = names_from_metadata(cat)
 
@@ -119,9 +127,11 @@ def how_many_medicines_known(tool_input, cat):
 
 @tool(return_direct=True)
 def filename(tool_input: str, cat):
-    """Reply to a file name, ONLY if specified using the word "file"
-    Input is the file name
-    Use this tool only if the user specifies to use a tool using #use tool#"""
+    """Risponde SOLTANTO se il prompt dell'utente è una stringa (rappresentante il filename del farmaco) in questo formato: "FI_<nome medicinale>.PDF".
+    Questo tool non deve essere usato se l'utente specifica solo il nome del farmaco o se include ulteriori scritte nel prompt, ma 
+    l'unico modo per attivare il tool è scrivendo SOLAMENTE e PERFETTAMENTE una stringa nel formato sopra specificato.
+    L'input è l'intera stringa contente il filename del farmaco
+    """
 
     global med_filename
     global med_name
