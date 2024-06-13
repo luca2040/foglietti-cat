@@ -283,7 +283,7 @@ Il thresold è stato impostato a 0.8, e tale scelta è frutto di semplici osserv
 
 ## 13/06/2024
 
-### Test qualitativo dell'output con altri embedder.
+### Test qualitativo dell'output con altri embedder
 
 Sono state effettuate delle prove usando gli altri embedder e valutando in che modo tale cambiamento influisse in modo qualitativo sulla risposta fornita dal gatto.
 Si riporta che usando altri embedder che non siano quello di Qdrant (locale) l'attribuzione dello score varia in modo notevole, passando da uno score medio dei points recuperati di 0.8 ad uno di 0.5. 
