@@ -210,4 +210,27 @@ def before_cat_recalls_declarative_memories(declarative_recall_config, cat):
 
     return declarative_recall_config
 ```
+---
 
+Se si vuole che il gatto risponda usando certe parole invece che altre, esse si possono specificare nel file [wordlist.json](/CheshireCat/wordlist/wordlist.json), che è la lista di parole che si vuole che il gatto usi.<br/>
+Il file json viene inserito direttamente nel prefix, quindi è possibile specificare qualsiasi parola.
+
+[plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
+
+```python
+@hook
+def agent_prompt_prefix(prefix, cat):
+    with open("/app/cat/wordlist/wordlist.json", "r") as file:
+        data = json.load(file)
+
+    wordlist = json.dumps(data, indent=2)
+
+    prefix = f"""
+    ........
+    Nelle tue risposte usa maggiormente queste parole come sinonimi ad altre, se nel file viene anche specificato qualche effetto del testo applicalo.
+    {wordlist}
+    ........
+    """
+
+    return prefix
+```
