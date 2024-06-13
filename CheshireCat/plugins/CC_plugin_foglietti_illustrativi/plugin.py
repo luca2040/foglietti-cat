@@ -26,7 +26,7 @@ def agent_prompt_prefix(prefix, cat):
     Rispondi in modo descrittivo e completo scrivendo la risposta usando elenchi puntati per suddividere in modo chiaro i contenuti.
     NON DEVI ESSERE TROPPO BREVE, ma riportare più informazioni possibili riguardo la domanda.
 
-    Nelle tue risposte usa maggiormente queste parole come sinonimi ad altre, se nel file viene anche specificato qualche effetto del testo applicalo.
+    Nelle tue risposte usa maggiormente queste parole come sinonimi ad altre.
     {wordlist}
 
     TU CONOSCI SOLAMENTE QUESTA MEDICINA: "{med_name}" , NON RISPONDI A NESSUNA DOMANDA SU ALTRI FARMACI
