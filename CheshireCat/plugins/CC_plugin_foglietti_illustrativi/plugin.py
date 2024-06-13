@@ -3,15 +3,20 @@ from cat.plugins.CC_plugin_foglietti_illustrativi.functions import *
 from cat.plugins.CC_plugin_foglietti_illustrativi.new_pdf_parser import new_pdf_parser
 from cat.plugins.CC_plugin_foglietti_illustrativi.optimized_embedder import cat_embed
 
+import json
+
 med_filename = ""
 med_name = ""
 
-procedural_memory_thresold = 0.8
+procedural_memory_threshold = 0.84
+
 
 @hook
 def agent_prompt_prefix(prefix, cat):
     with open("/app/cat/wordlist/wordlist.json", "r") as file:
-        wordlist = file.read()
+        data = json.load(file)
+
+    wordlist = json.dumps(data, indent=2)
 
     prefix = f"""
     Sei un farmacista, e rispondi in modo professionale.
@@ -21,7 +26,7 @@ def agent_prompt_prefix(prefix, cat):
     Rispondi in modo descrittivo e completo scrivendo la risposta usando elenchi puntati per suddividere in modo chiaro i contenuti.
     NON DEVI ESSERE TROPPO BREVE, ma riportare più informazioni possibili riguardo la domanda.
 
-    Nelle tue risposte usa maggiormente queste parole come sinonimi ad altre.
+    Nelle tue risposte usa maggiormente queste parole come sinonimi ad altre, se nel file viene anche specificato qualche effetto del testo applicalo.
     {wordlist}
 
     TU CONOSCI SOLAMENTE QUESTA MEDICINA: "{med_name}" , NON RISPONDI A NESSUNA DOMANDA SU ALTRI FARMACI
@@ -82,10 +87,11 @@ def before_cat_recalls_declarative_memories(declarative_recall_config, cat):
 
     return declarative_recall_config
 
-@hook  
+
+@hook
 def before_cat_recalls_procedural_memories(procedural_recall_config, cat):
 
-    procedural_recall_config["threshold"] = procedural_memory_thresold
+    procedural_recall_config["threshold"] = procedural_memory_threshold
 
     return procedural_recall_config
 
@@ -117,7 +123,7 @@ def after_cat_recalls_memories(cat):
 @tool(return_direct=True)
 def how_many_medicines_known(tool_input, cat):
     """
-    Risponde SOLTANTO se il prompt dell'utente è uguale a "Quali farmaci conosci?" e mai a domande simili. 
+    Risponde SOLTANTO se il prompt dell'utente è uguale a "Quali farmaci conosci?" e mai a domande simili.
     L'input è sempre None.
     """
 
@@ -133,7 +139,7 @@ def how_many_medicines_known(tool_input, cat):
 @tool(return_direct=True)
 def filename(tool_input: str, cat):
     """Risponde SOLTANTO se il prompt dell'utente è una stringa (rappresentante il filename del farmaco) in questo formato: "FI_<nome medicinale>.PDF".
-    Questo tool non deve essere usato se l'utente specifica solo il nome del farmaco o se include ulteriori scritte nel prompt, ma 
+    Questo tool non deve essere usato se l'utente specifica solo il nome del farmaco o se include ulteriori scritte nel prompt, ma
     l'unico modo per attivare il tool è scrivendo SOLAMENTE e PERFETTAMENTE una stringa nel formato sopra specificato.
     L'input è l'intera stringa contente il filename del farmaco
     """
