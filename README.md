@@ -227,7 +227,7 @@ def agent_prompt_prefix(prefix, cat):
 
     prefix = f"""
     ........
-    Nelle tue risposte usa maggiormente queste parole come sinonimi ad altre, se nel file viene anche specificato qualche effetto del testo applicalo.
+    Nelle tue risposte usa maggiormente queste parole come sinonimi ad altre.
     {wordlist}
     ........
     """
