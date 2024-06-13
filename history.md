@@ -278,3 +278,16 @@ Il thresold è stato impostato a 0.8, e tale scelta è frutto di semplici osserv
   
       return procedural_recall_config
 ```
+
+---
+
+## 13/06/2024
+
+### Test qualitativo dell'output con altri embedder.
+
+Sono state effettuate delle prove usando gli altri embedder e valutando in che modo tale cambiamento influisse in modo qualitativo sulla risposta fornita dal gatto.
+Si riporta che usando altri embedder che non siano quello di Qdrant (locale) l'attribuzione dello score varia in modo notevole, passando da uno score medio dei points recuperati di 0.8 ad uno di 0.5. 
+Tale abbassamento di score introduce problemi proprio a livello di retrival in quanto non viene più effettuato il filtraggio di informazioni appartenenti a foglietti illustrativi diversi: ciò comporta in pratica che se si chiede al gatto una domanda sull'aspirina, per la risposta potrebbe far uso di points di altri farmaci.
+Inoltre il cambiamento di score porta anche problemi con l'aggancio dei tool di selezione del farmaco di contesto, e quindi con il retrival della memoria procedurale.
+Per non vanificare il lavoro svolto fino ad ora la soluzione più immediata e agevole è proprio quella di non cambiare embedder; tuttavia ciò non significa che la transizione verso un altro embedder, comporti un ritorno al punto di partenza, ma che per riadattare il retrival correttamente bisognerebbe fare un lavoro su parametri come il threshold, o magari operare degli adattamenti alla funzione di distanza.
+
