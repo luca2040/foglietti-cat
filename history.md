@@ -6,23 +6,23 @@ Use the CheshireCat AI to explain and read medicine informations
 
 (R) -> Richieste
 
-- Siamo riusciti ad implementare la callback durante l'upload dei file
+1. Siamo riusciti ad implementare la callback durante l'upload dei file
 
-- Fornire la documentazione su un repository sullo stato attuale del lavoro, da tenere aggiornato (R)
+2. Fornire la documentazione su un repository sullo stato attuale del lavoro, da tenere aggiornato (R)
 
-- Il gatto non dà infomrazioni di farmaci di cui non ha la conoscenza in MODO DETERMINISTICO (R)
+3. Il gatto non dà infomrazioni di farmaci di cui non ha la conoscenza in MODO DETERMINISTICO (R)
 
-- L'estrazione del nome del farmaco deve includere un match tra l'input fornito e l'elenco dei farmaci presenti (anche riguardante i vari farmaci disponibili) (R)
+4. L'estrazione del nome del farmaco deve includere un match tra l'input fornito e l'elenco dei farmaci presenti (anche riguardante i vari farmaci disponibili) (R)
 
-- Far evitare al gatto di rispondere a domande la cui risposta non è specificata direttamente nei foglietti illustrativi (per esempio far rispondere alla domanda "Qual è la differenza tra l'aspirina e l'acetilcisteina?" ?).
+5. Far evitare al gatto di rispondere a domande la cui risposta non è specificata direttamente nei foglietti illustrativi (per esempio far rispondere alla domanda "Qual è la differenza tra l'aspirina e l'acetilcisteina?" ?).
 
-- Non popolare la memoria dichiarativa; lavorare sul miglioramento della funzione di distanza e predisporre un livello di soglia per lo score al di sotto della quale il gatto non risponde. (R)
+6. Non popolare la memoria dichiarativa; lavorare sul miglioramento della funzione di distanza e predisporre un livello di soglia per lo score al di sotto della quale il gatto non risponde. (R)
 
-- Non far rispondere al gatto a domande riguardanti un farmaco se il context della domanda è impostato su un altro farmaco ( Per esempio se gli ho detto di parlarmi dell'aspirina, non mi risponde a domande sulla tachipirina) (R)
+7. Non far rispondere al gatto a domande riguardanti un farmaco se il context della domanda è impostato su un altro farmaco ( Per esempio se gli ho detto di parlarmi dell'aspirina, non mi risponde a domande sulla tachipirina) (R)
 
-- Approfondire l'hack del # per escudere una specifica parte del prompt dalla domanda (es. # non usare il tool #).
+8. Approfondire l'hack del # per escudere una specifica parte del prompt dalla domanda (es. # non usare il tool #).
 
-- Per le informazioni tabulari bisogna:
+9. Per le informazioni tabulari bisogna:
 
   - Spiegare nel prefix la struttura con cui viene fornita la tabella
   - Struttura le informazioni per header di colonna e di riga e passare questa struttura al llm per parsare il risultato finale
@@ -291,3 +291,19 @@ Tale abbassamento di score introduce problemi proprio a livello di retrival in q
 Inoltre il cambiamento di score porta anche problemi con l'aggancio dei tool di selezione del farmaco di contesto, e quindi con il retrival della memoria procedurale.
 Per non vanificare il lavoro svolto fino ad ora la soluzione più immediata e agevole è proprio quella di non cambiare embedder; tuttavia ciò non significa che la transizione verso un altro embedder, comporti un ritorno al punto di partenza, ma che per riadattare il retrival correttamente bisognerebbe fare un lavoro su parametri come il threshold, o magari operare degli adattamenti alla funzione di distanza.
 
+---
+
+## Argomenti riunione 13/06/2024
+
+(R) -> Richieste
+
+1. Il gatto in una parte delle risposte usa ancora una parte di informazioni che non sono presenti nella memoria dichiarativa, ma che bensì derivano dal training del LLM. L'obiettivo da raggiungere è azzerare, o perlomeno ridurre a livello tollerabile, le informazioni che non sono presenti dai foglietti illustrativi ma che derivano dalla conoscenza del LLM. (R)
+
+2. Verificare il prompt injection ovvero i modi con cui l'utente riesce a far alterare il comportamento del gatto forzandolo a dare risposte che non dovrebbe dare. Da approfondire se e quanto l'uso dei cancelletti come hack (# istruzioni #) possa rappresentare un rischio per la generazione di prompt malevoli; sarebbe interessante dal punto di vista del prompt segnalare anche il bug di quando si passa al gatto una stringa json e questo intende i suoi campi come delle variabili.
+
+3. Qualora le domande dell'utente richiedano una risposta approfondita, il gatto deve rispondere in modo articolato, viceversa quando la domanda richiede un'informazione precisa la risposta deve essere concisa. Da tenere conto che la problematica principale riguardante questo punto riguarda la scelta del criterio con cui si può far intendere al gatto la necessità di una risposta articolata da una precisa. Nel suo svolgimento è quindi consigliabile di fornire al gatto una definizione del concetto di "articolato e preciso" a priori e poi testare come le sue risposte seguano il criterio prestabilito fino a raggiungere un risultato accettabile.
+Si rammenta che in ogni caso risposte troppo prolisse e sbrodolose non rientrano nel caso d'uso previsto per un farmacista, il quale si ipotizza che la maggior parte delle volte richiede una risposta la cui lettura sia veloce e le cui informazioni siano comunque precise. (R)
+
+4. Approfondire la causa del mancato filtraggio dei metadati quando si cambia embedder.
+
+5. Approfondire anche la task riguardante l'elenco dei sinonimi delle parole chiave. L'intento principale sarebbe quello di avere una risposta in cui eventuali sinonimi delle parole chiave predefinite, non siano presenti a fine di maggiore chiarezza; per esempio se come parola chiave ho il termine "medicinale", esso dovrà essere usato globalmente della risposta anche in sostituzione i altri sinonimi come "medicina", "farmaco", "cura" ecc. Per facilitare lo svolgimento della task si consiglia di usare come parole chiave termini poco comuni ma che siano parole palesi, ciò facilita la fase di analisi perchè consente di individuare subito se sono state operate le sostituzioni con le parole chiave. La seconda opzione che si può tenere conto è quella di effettuare un controllo a posteriore da parte del LLM dandogli la risposta del gatto e facendogli individuare gli eventuali sinonimi. (R) 
