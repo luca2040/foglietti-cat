@@ -2,7 +2,7 @@
 ---
 ## Classificazione tabelle pdf
 
-### Esempio di pdf parsato correttamente
+### Esempio di pdf parsato correttamente ( FI_LOPINAVIR_E_RITONAVIR_MYLAN )
 
 <p align="center">
   <img width="65%" height="65%" src="https://github.com/luca2040/foglietti-cat/assets/152313871/f5b04126-7511-4797-b01a-fa3613101a02">
@@ -10,7 +10,7 @@
 
 ---
 
-### Esempio di pdf parsato in modo sbagliato
+### Esempio di pdf parsato in modo sbagliato ( FI_ACETILCISTEINA_PSP )
 
 <p align="center">
   <img width="65%" height="65%" src="https://github.com/luca2040/foglietti-cat/assets/152313871/6a0b8252-6432-494c-8281-6a8cbf5101b4">
