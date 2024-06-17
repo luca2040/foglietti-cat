@@ -1,5 +1,5 @@
 numpy==1.26.4
 pandas==2.2.1
-PyPDF2==3.0.1
-tabula-py
 jpype1
+img2table
+pytesseract
