@@ -1,68 +1,54 @@
 from langchain.document_loaders.base import BaseBlobParser
 from langchain.docstore.document import Document
 
+from img2table.ocr import TesseractOCR
+from img2table.document import PDF
+
 from io import BytesIO
-import tabula
-from PyPDF2 import PdfReader
+import pytesseract
 
 
 class new_pdf_parser(BaseBlobParser):
 
     def lazy_parse(self, blob):
-        parsed_text, parsed_tables = parse_pdf(blob, "TABELLA")
+        blob_bytes = blob.data
+        blob_to_read = BytesIO(blob_bytes)
 
-        yield Document(page_content=parsed_text, metadata={"tables": parsed_tables})
+        ocr = TesseractOCR(n_threads=2, lang="ita")
+        pdf = PDF(blob_to_read, detect_rotation=True, pdf_text_extraction=False)
+
+        extracted_tables = list(
+            pdf.extract_tables(
+                ocr=ocr, implicit_rows=True, borderless_tables=True, min_confidence=50
+            ).values()
+        )
+
+        total_tables = []
+
+        for table_group in extracted_tables:
+            for table in table_group:
+                table_text = table.html
+                if table.title:
+                    table_text = table_text.replace(
+                        "<table>", f"<table title={table.title}>"
+                    )
+
+                total_tables.append(table_text)
+
+        parsed_text = extract_text_from_blob(blob_to_read)
+
+        yield Document(page_content=parsed_text, metadata={"tables": total_tables})
 
 
-def replace_text(text_to_replace):
-    return str(text_to_replace).replace("\n", " ").replace("\r", " ").replace("\t", " ")
+def extract_text_from_blob(blob : BytesIO) -> str:
+    pdf = PDF(blob, 
+        detect_rotation=True,
+        pdf_text_extraction=True)
 
+    pages = pdf.images
+    text_data = ""
+    for page in pages:
+        text = pytesseract.image_to_string(page)
+        text_data += text + "\n"
 
-def parse_pdf(file_blob, table_name):
-
-    blob_bytes = file_blob.data
-    blob_to_read = BytesIO(blob_bytes)
-
-    tables = tabula.read_pdf(blob_to_read, pages="all")
-
-    tables_text = ["" for _ in range(len(tables))]
-
-    for dataIndex, dataframe in enumerate(tables):
-        tables_text[dataIndex] = table_name + "{\n"
-
-        columns_parsed = dataframe.columns.to_numpy()
-
-        data_parsed = dataframe.to_numpy()
-
-        data_parsed = [
-            [
-                single_data if isinstance(single_data, str) else ""
-                for single_data in element
-            ]
-            for element in data_parsed
-        ]
-
-        for indexText in columns_parsed:
-            text_replaced = replace_text(indexText)
-            tables_text[dataIndex] += f"({text_replaced})"
-        tables_text[dataIndex] += "]\n"
-
-        for row in data_parsed:
-            tables_text[dataIndex] += "["
-            for rowText in row:
-                text_replaced = replace_text(rowText)
-                tables_text[dataIndex] += f"({text_replaced})"
-            tables_text[dataIndex] += "]\n"
-        tables_text[dataIndex] += "}\n"
-
-    reader = PdfReader(blob_to_read)
-
-    all_text = ""
-
-    for page in reader.pages:
-        all_text += page.extract_text()
-
-    # all_text
-    # tables_text
-
-    return all_text, [{"table": table, "embed": None} for table in tables_text]
+    return text_data

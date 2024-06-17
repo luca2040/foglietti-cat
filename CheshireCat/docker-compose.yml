@@ -5,7 +5,13 @@ services:
   cheshire-cat-core:
     image: ghcr.io/cheshire-cat-ai/core:latest
     container_name: cheshire_cat_core
-    command: bash -c "apt update && apt install -y default-jre && python3 -m cat.main"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        bash -c "apt update && apt install -y default-jre && apt install -y tesseract-ocr && apt install -y libtesseract-dev"
+        bash -c "cd /usr/share/tesseract-ocr/4.00/tessdata && curl -H 'Accept: application/vnd.github.v3.raw' -O -L https://api.github.com/repos/tesseract-ocr/tessdata/contents/ita.traineddata"
+        bash -c "python3 -m cat.main"
     depends_on:
       - cheshire-cat-vector-memory
     ports:
