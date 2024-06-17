@@ -2,29 +2,48 @@
 ---
 ## Classificazione tabelle pdf
 
-### Esempio di pdf parsato correttamente ( FI_LOPINAVIR_E_RITONAVIR_MYLAN )
-
-<p align="center">
-  <img width="65%" height="65%" src="https://github.com/luca2040/foglietti-cat/assets/152313871/f5b04126-7511-4797-b01a-fa3613101a02">
-</p>
-
----
-
-### Esempio di pdf parsato in modo sbagliato ( FI_ACETILCISTEINA_PSP )
-
-<p align="center">
-  <img width="65%" height="65%" src="https://github.com/luca2040/foglietti-cat/assets/152313871/6a0b8252-6432-494c-8281-6a8cbf5101b4">
-</p>
-
-- Non importa quante tabelle ci siano, l'importante è che la tabella sia strutturata.
-- Se in una riga ci sono delle celle unite meglio se non cè nient'altro.
-- Se la stessa tabella è divisa in più pagine ma senza riportare gli indici su entrambe le pagine non viene parsata correttamente.
-- Le celle della tabella devono essere separate da linee.
-
-### Come ricreare questo problema:
-
-Quando si parsa un file pdf possono verificarsi questi problemi se una riga che contiene delle celle unite ha anche delle celle non unite oppure unite in verticale.
-Se la tabella è divisa in più pagine diverse il gatto non è in grado di capire gli indici e quindi non è in grado di rispondere correttamente.
+<table>
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Immagine</th>
+            <th>Risultati tabula-py</th>
+            <th>Risultati Camelot</th>
+            <th>Risultati img2table</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>FI LOPINAVIR E RITONAVIR MYLAN</td>
+            <td><img src="https://github.com/luca2040/foglietti-cat/assets/152313871/f5b04126-7511-4797-b01a-fa3613101a02"></td>
+            <td>Parsing sbagliato a causa della cella del titolo unita, il gatto non riesce a capire il contenuto.</td>
+            <td>Colonne non riconosciute</td>
+            <td>Nessun problema</td>
+        </tr>
+        <tr>
+            <td>FI ACETILCISTEINA PSP</td>
+            <td><img src="https://github.com/luca2040/foglietti-cat/assets/152313871/6a0b8252-6432-494c-8281-6a8cbf5101b4"></td>
+            <td>Cella unita, parsing parzialmente sbagliato, il gatto capisce qualcosa ma non bene</td>
+            <td>Tabella spezzata, il gatto capisce quasi nulla</td>
+            <td>Nessun problema</td>
+        </tr>
+        <tr>
+            <td>FI AUGMENTIN SCIROPPO 35 BB</td>
+            <td><img src="https://github.com/luca2040/foglietti-cat/assets/152313871/92fbaa64-3b8c-4914-bd0e-3901ab610347"></td>
+            <td>Non riconosce che cè una tabella</td>
+            <td>Non riconosce che cè una tabella</td>
+            <td>Bordi strani ma parsata correttamente, il gatto capisce tutto</td>
+        </tr>
+        <tr>
+            <td>ETI METADIGEST KETO NFI 30CPS BLISTER</td>
+            <td><img src="https://github.com/luca2040/foglietti-cat/assets/152313871/f983049c-02f0-491d-a009-d90050feafe9"></td>
+            <td>Lasciamo stare</td>
+            <td>Stessa cosa</td>
+            <td>Parsato molto male ma il gatto capisce qualcosina.
+            <br/>Le tabelle sul PDF sono parsate ma con tantissime righe che non esistono</td>
+        </tr>
+    </tbody>
+</table>
 
 ---
 
