@@ -312,8 +312,8 @@ Si rammenta che in ogni caso risposte troppo prolisse e sbrodolose non rientrano
 
 ### Creazione script per testare la libreria [img2table](https://github.com/xavctn/img2table) per il parsing delle tabelle nei pdf
 E' stata testata la libreria sopraddetta su un insieme di 121 pdf al fine di analizzare i risultati ottenuti per compararli con quelli delle altre librerie di estrazione tabelle precedentemente provate.
-Un riepilogo comparativo dell'accurattezza mostrata da ciascuan libreria è stata descritta nel documento "Problemi e cose varie" alla sezione ["Classificazione tabelle pdf"](https://github.com/luca2040/foglietti-cat/blob/main/description.md#classificazione-tabelle-pdf). <br/>
-L'adozione di questa libreria ha portato a risultati di un'accuratezza imparagonabile rispetto a quelle adottate in precedenza, riuscendo ad individuare tutte le tabelle presenti in un pdf e soprattutto permettendo di ottenere il risultato in un formato strutturato come HTML (tale caratteristica ha presentato un punto di svolta, in quanto librerie come tabula non consentivano di ottenere direttamente un formato standard per la rappresentazione di dati tabulari). 
+Un riepilogo comparativo dell'accurattezza mostrata da ciascuna libreria è stata descritta nel documento "Problemi e cose varie" alla sezione ["Classificazione tabelle pdf"](https://github.com/luca2040/foglietti-cat/blob/main/description.md#classificazione-tabelle-pdf). <br/>
+L'adozione di questa libreria ha portato a risultati di un'accuratezza imparagonabile rispetto a quelle adottate in precedenza, riuscendo ad individuare tutte le tabelle presenti in un pdf e soprattutto permettendo di ottenere il risultato in un formato strutturato come HTML (tale caratteristica ha presentato un punto di svolta, in quanto librerie come "tabula" non consentivano di ottenere direttamente un formato standard per la rappresentazione di dati tabulari). 
 Il formato di uscita che è stato scelto di mantenere è l'HTML per via della sua semplicità, tuttavia l'altra opzione che offre la libreria è quella di ottenere la tabella parsata come un pandas DataFrame, da cui si potrebbero ricavare ulteriori formati come il csv ( opzione che però non è stata presa in considerazione, come spiegato nella [sezione successiva](https://github.com/luca2040/foglietti-cat/edit/main/history.md#scelta-formato-strutturato-per-dati-tabulari-da-passare-al-gatto) ).
 Si riporta lo script impiegato per effettuare i test, a fini di replicazione:
 ```python
@@ -481,7 +481,7 @@ Infine una volte accertate le funzionalità della libreria abbiamo implementato 
 
 ### Scelta formato strutturato per dati tabulari da passare al gatto
 
-Una volta verificati i risultati della libreria, bisognava scegliere quale formato strutturato passare al gatto affinchè i dati contenuti potessero essergli comprensibili al fine di ottenere delle risposte coerenti.
+Una volta verificati i risultati della libreria, bisognava scegliere quale formato strutturato passare al gatto affinchè i dati contenuti potessero essergli comprensibili al fine di ottenere delle risposte corrette.
 L'idea iniziale era quella di sostituire l'html delle tabelle nella posizione corretta all'interno del testo estratto, tuttavia è stato accertato che tale operazione non serviva in quanto è bastato passare le tabelle alla fine del testo per poter ricevere delle risposte esaustive da parte del gatto. Di conseguenza è stato anche accertato che l'html è un formato comprensibile, ed eventuali errori di incomprensione da parte del gatto non sono stati individuati. 
 
 ## Comparazione OCR:
