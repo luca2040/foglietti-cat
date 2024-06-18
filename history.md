@@ -306,4 +306,185 @@ Si rammenta che in ogni caso risposte troppo prolisse e sbrodolose non rientrano
 
 4. Approfondire la causa del mancato filtraggio dei metadati quando si cambia embedder.
 
-5. Approfondire anche la task riguardante l'elenco dei sinonimi delle parole chiave. L'intento principale sarebbe quello di avere una risposta in cui eventuali sinonimi delle parole chiave predefinite, non siano presenti a fine di maggiore chiarezza; per esempio se come parola chiave ho il termine "medicinale", esso dovrà essere usato globalmente della risposta anche in sostituzione i altri sinonimi come "medicina", "farmaco", "cura" ecc. Per facilitare lo svolgimento della task si consiglia di usare come parole chiave termini poco comuni ma che siano parole palesi, ciò facilita la fase di analisi perchè consente di individuare subito se sono state operate le sostituzioni con le parole chiave. La seconda opzione che si può tenere conto è quella di effettuare un controllo a posteriore da parte del LLM dandogli la risposta del gatto e facendogli individuare gli eventuali sinonimi. (R) 
+5. Approfondire anche la task riguardante l'elenco dei sinonimi delle parole chiave. L'intento principale sarebbe quello di avere una risposta in cui eventuali sinonimi delle parole chiave predefinite, non siano presenti a fine di maggiore chiarezza; per esempio se come parola chiave ho il termine "medicinale", esso dovrà essere usato globalmente della risposta anche in sostituzione i altri sinonimi come "medicina", "farmaco", "cura" ecc. Per facilitare lo svolgimento della task si consiglia di usare come parole chiave termini poco comuni ma che siano parole palesi, ciò facilita la fase di analisi perchè consente di individuare subito se sono state operate le sostituzioni con le parole chiave. La seconda opzione che si può tenere conto è quella di effettuare un controllo a posteriore da parte del LLM dandogli la risposta del gatto e facendogli individuare gli eventuali sinonimi. (R)
+
+## 17/06/2024
+
+### Creazione script per testare la libreria [img2table](https://github.com/xavctn/img2table) per il parsing delle tabelle nei pdf
+E' stata testata la libreria sopraddetta su un insieme di 121 pdf al fine di analizzare i risultati ottenuti per compararli con quelli delle altre librerie di estrazione tabelle precedentemente provate.
+Un riepilogo comparativo dell'accurattezza mostrata da ciascuan libreria è stata descritta nel documento "Problemi e cose varie" alla sezione ("Classificazione tabelle pdf")[https://github.com/luca2040/foglietti-cat/blob/main/description.md#classificazione-tabelle-pdf]. <br/>
+L'adozione di questa libreria ha portato a risultati di un'accuratezza imparagonabile rispetto a quelle adottate in precedenza, riuscendo ad individuare tutte le tabelle presenti in un pdf e soprattutto permettendo di ottenere il risultato in un formato strutturato come HTML (tale caratteristica ha presentato un punto di svolta, in quanto librerie come tabula non consentivano di ottenere direttamente un formato standard per la rappresentazione di dati tabulari). 
+Il formato di uscita che è stato scelto di mantenere è l'HTML per via della sua semplicità, tuttavia l'altra opzione che offre la libreria è quella di ottenere la tabella parsata come un pandas DataFrame, da cui si potrebbero ricavare ulteriori formati come il csv (opzione che però non è stata presa in considerazione, come spiegato nella (sezione successiva)[https://github.com/luca2040/foglietti-cat/edit/main/history.md#scelta-formato-strutturato-per-dati-tabulari-da-passare-al-gatto]).
+Si riporta lo script impiegato per effettuare i test, a fini di replicazione:
+```python
+from img2table.ocr import TesseractOCR, PaddleOCR, EasyOCR, DocTR
+from img2table.document import PDF
+
+
+import os
+import time
+import numpy
+import traceback
+import pytesseract
+
+from typing import List
+
+# Global variables
+
+files_path = "C:\\Users\\danie\\OneDrive\\Desktop\\img2table-test\\files"
+html_output_path  = ""
+txt_output_path = ""
+
+count = 0
+
+ocr_dict = {
+       "Tesseract": TesseractOCR(n_threads=1, lang="ita"),
+       "Paddle": PaddleOCR(lang="it"),
+       "EasyOCR":  EasyOCR(lang= ["it"]),
+       "DocTR": DocTR(detect_language=True)
+
+}
+
+
+# ==================================================
+# Functions 
+
+def extract_text(pdf, filename):
+        global txt_output_path
+        # Getting pages of pdf and extracting text from them
+        pages : List[numpy.ndarray] = pdf.images
+        
+        text_data = ""
+        for page in pages:
+                text = pytesseract.image_to_string(page)
+                text_data += text + "\n"
+
+        # Saving the extracted text in a file
+        if not os.path.exists(txt_output_path):
+               os.makedirs(txt_output_path)
+
+        new_file = os.path.join(txt_output_path, filename.upper().replace(".PDF", ".TXT"))
+        with open(new_file, "w+", encoding="utf-8") as f:
+               f.write(text_data)
+
+
+def process_files(in_path, out_path, ocr_class): 
+      
+      for file in os.listdir(in_path):
+        filepath = os.path.join(in_path, file)
+        
+        # If there is a directory, I go into it recursively until I found pdf files
+        if os.path.isdir(filepath):
+                new_out_path = os.path.join(out_path, file)
+                process_files(filepath, new_out_path, ocr_class)
+                continue
+
+        # If the file isn't a pdf, I go to the next:
+        if not file.upper().endswith(".PDF"): continue
+
+        # Checking if the output path exists. If not, it creates it.
+        if not os.path.exists(out_path):
+               os.makedirs(out_path)
+
+        # Checking if the output html file still exists, in order to avoid
+        # inutil computations during developing phase.
+        html_path = os.path.join(out_path, f"""{file.upper().replace(".PDF", ".html")}""")
+        if os.path.exists(html_path): continue 
+
+        # Getting PDF and extracting text
+        pdf = PDF(filepath, 
+        detect_rotation=True,
+        pdf_text_extraction=True)
+
+        # extract_text(pdf, file) REACTIVATE THIS LINE
+
+        # Table extraction
+        print(f"Exctracting {file}...\n")
+
+        try:
+                global current_ocr
+                extracted_tables = list(pdf.extract_tables(
+                                        ocr=ocr_class,
+                                        implicit_rows=True,
+                                        borderless_tables=True,
+                                        min_confidence=50).values())
+
+                # Converting ExtractedTables into html strings
+                html_table_list = []
+                for table in extracted_tables:
+                        if table: 
+                                for t in table:
+                                        html_table_list.append(t.html)
+        
+                # Writing the tables found in the html file
+                with open(html_path, "a+", encoding="utf-8") as f:
+                        for html_table in html_table_list:
+                                f.write(html_table.replace("<table>", """<table border="1">"""))
+
+                 
+
+                # Printing progression
+                global count
+                global total
+                count+=1
+                print(f"""Done conversion for {file}, ({count}/{total}) {round(count/total*100)}% \n\n""")
+        except Exception as e:
+               traceback.print_exc()
+               print(f"Non è stato possibile parsare {file} a causa dell'errore \n {str(e)}")
+
+
+# ==================================================
+# Entry point:
+
+if __name__ == "__main__":
+        for name, ocr in ocr_dict.items():
+
+                # Setting the current output path and counting the elements
+                html_output_path = os.path.join(files_path, "..", name, "html")
+                txt_output_path = os.path.join(files_path, "..", name, "txt")
+
+                pdf_num = len([file for _, _, files in os.walk(files_path, topdown=True) for file in files]) 
+                html_num = len([file for _, _, files in os.walk(html_output_path, topdown=True) for file in files]) 
+                total = (pdf_num - html_num)
+
+                # Starting extraction
+                start_time = time.time()
+                process_files(files_path, html_output_path, ocr)
+                print(f"""{name} took {"{:.2f}".format(time.time()-start_time)}s.""")
+
+```
+
+N.B: per chi volesse eseguire lo script sul proprio computer locale, fare attenzione alle seguenti righe:
+```python
+files_path = "C:\\Users\\danie\\OneDrive\\Desktop\\img2table-test\\files"
+html_output_path  = ""
+txt_output_path = ""
+
+count = 0
+
+ocr_dict = {
+       "Tesseract": TesseractOCR(n_threads=1, lang="ita"),
+       "Paddle": PaddleOCR(lang="it"),
+       "EasyOCR":  EasyOCR(lang= ["it"]),
+       "DocTR": DocTR(detect_language=True)
+
+}
+
+```
+
+- Sostituire nella variabile ```files_path``` il path in cui sono salvati i pdf nel proprio computer locale; non importa se nel percorso indicato ci sono file con estensione diversa da ".pdf" o cartelle, lo script li ignorerà e passerà ad estrarre le tabelle solo nei pdf, salvando le tabelle estratte in ogni documento in un relativo file html.
+
+-  Essendo img2table una libreria basata su OCR, è possibile passarne uno custom inserendone la relativa istanza nel dizionario ```ocr_dict```, la key del dizionario può essere una stringa qualsiasi che viene usata per creare una cartella di output in cui saranno salvati i risultati ottenuti applicando quell'OCR: lo script infatti effettua l'estrazione delle tabelle usando ogni OCR al fine di avere dei risultati comparabili. <br/>
+Per far uso delle classi degli OCR è necessario effettuare la corretta installazione per ognuno di essi come riportato nella (documentazione della libreria)[https://github.com/xavctn/img2table?tab=readme-ov-file#installation-]. La comparazione dei vari OCR è riportata nei (prossimi paragrafi)[https://github.com/luca2040/foglietti-cat/edit/main/history.md#comparazione-ocr].
+
+Infine una volte accertate le funzionalità della libreria abbiamo implementato quest'ultima all'interno del parser del gatto, non solo per l'estrazione delle tabelle, ma anche per quella del testo.
+
+### Scelta formato strutturato per dati tabulari da passare al gatto
+
+Una volta verificati i risultati della libreria, bisognava scegliere quale formato strutturato passare al gatto affinchè i dati contenuti potessero essergli comprensibili al fine di ottenere delle risposte coerenti.
+L'idea iniziale era quella di sostituire l'html delle tabelle nella posizione corretta all'interno del testo estratto, tuttavia è stato accertato che tale operazione non serviva in quanto è bastato passare le tabelle alla fine del testo per poter ricevere delle risposte esaustive da parte del gatto. Di conseguenza è stato anche accertato che l'html è un formato comprensibile, ed eventuali errori di incomprensione da parte del gatto non sono stati individuati. 
+
+## Comparazione OCR:
+
+Durante la fase di comparazione degli OCR, ci si è accorti del seguente dettaglio riguardo la libreria: l'estrazione delle tabelle avviene la maggior parte delle volte senza usare l'OCR passato come argomento. Infatti l'OCR viene impiegato solamente per estrarre dati da eventuali immagini presenti nei pdf; pertanto se la tabella non è presente all'interno di un'immagine, la libreria non utilizzerà le funzionalità dell'OCR. Essendo tale casistiche presente per tutti i pdf, la scelta del miglior OCR rimane dunque irrilevante.
+
