@@ -28,7 +28,7 @@ Use the CheshireCat AI to explain and read medicine informations
   - Struttura le informazioni per header di colonna e di riga e passare questa struttura al llm per parsare il risultato finale
   - Documentare in un pdf degli esempi di tabelle analizzate dal parser e descrivere gli eventuali problemi (R)
 
-- Organizzazione del lavoro su git:
+10. Organizzazione del lavoro su git:
   - main -> conserva il codice che funziona in attesa di ulteriori merge
   - deve essere staccato un branch per ogni task, nuovo branch -> nuova task
 
