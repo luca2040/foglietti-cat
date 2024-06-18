@@ -1,0 +1,8 @@
+[
+    "caratteristiche" -> "informazioni",
+    "applicazione" -> "indicazione" / "indicazioni",
+    "controindicazioni" -> "effetti indesiderati",
+    "effetti collaterali" -> "effetti indesiderati",
+    "note" -> "istruzioni per l'uso",
+    "dosaggio" -> "applicazione" / "quantità di riferimento"
+]

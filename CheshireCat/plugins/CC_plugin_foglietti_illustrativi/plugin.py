@@ -2,8 +2,6 @@ from cat.mad_hatter.decorators import hook, tool
 from cat.plugins.CC_plugin_foglietti_illustrativi.functions import *
 from cat.plugins.CC_plugin_foglietti_illustrativi.new_pdf_parser import new_pdf_parser
 
-import json
-
 med_filename = ""
 med_name = ""
 
@@ -12,10 +10,8 @@ procedural_memory_threshold = 0.84
 
 @hook
 def agent_prompt_prefix(prefix, cat):
-    with open("/app/cat/wordlist/wordlist.json", "r") as file:
-        data = json.load(file)
-
-    wordlist = json.dumps(data, indent=2)
+    with open("/app/cat/wordlist/wordlist.txt", "r") as file:
+        wordlist = file.read()
 
     prefix = f"""
     Sei un farmacista, e anche io sono un farmacista, e rispondi in modo professionale.
