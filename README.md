@@ -8,6 +8,8 @@ La repo è divisa in due parti:
 ### **[Cambiamenti nel tempo](/history.md)**
 ### **[Problemi e cose varie](/description.md)**
 
+![output](https://github.com/luca2040/foglietti-cat/assets/152313871/79775b1b-d4f7-4166-9ac2-9b7dec3b8177)
+
 ---
  ## CheshireCatAPI
 
