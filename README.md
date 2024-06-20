@@ -106,18 +106,24 @@ Per poter configurare l'upload è presente il file (config.json)[/CheshireCatAPI
 
 ## CheshireCat - [docker compose](/CheshireCat/docker-compose.yml)
 
-Per la libreria **tabula** usata per fare il parsing di tabelle nei PDF serve Java, quindi si è usato questo comando nel container del gatto:
+Per la libreria **img2table** usata per fare il parsing di tabelle nei PDF servono queste dipendenze, quindi si è usato questo comando nel container del gatto:
 ```yaml
-  command: bash -c "apt update && apt install -y default-jre && python3 -m cat.main"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        bash -c "apt update && apt install -y default-jre && apt install -y tesseract-ocr && apt install -y libtesseract-dev"
+        bash -c "cd /usr/share/tesseract-ocr/4.00/tessdata && curl -H 'Accept: application/vnd.github.v3.raw' -O -L https://api.github.com/repos/tesseract-ocr/tessdata/contents/ita.traineddata"
+        bash -c "python3 -m cat.main"
 ```
 ---
 Per poter usare Qdrant serve:
-- Indicarlo nelle dipendenze
+- Indicarlo nelle dipendenze del container del gatto
 ```yaml
   depends_on:
     - cheshire-cat-vector-memory
 ```
-- Impostarlo nelle variabili d'ambiente
+- Impostarlo nelle variabili d'ambiente del gatto
 ```yaml
   environment:
     - PYTHONUNBUFFERED=1
@@ -147,7 +153,7 @@ Per poter usare Qdrant serve:
 ## CheshireCat - [plugin](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
 
 Durante la fase di test era necessario poter specificare il nome della medicina selezionata e poter ricevere la lista di tutti i file parsati.
-Per fare questo sono stati creati due tool: 
+Per fare questo sono stati creati due tool:
 
 [plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
 ```python
@@ -166,38 +172,9 @@ def filename(tool_input: str, cat):
 ```
 ---
 Per poter parsare correttamente i PDF si è dovuta creare una [nuova classe](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/new_pdf_parser.py), la quale parsa i PDF in due passaggi:
-- Nel primo passaggio tutto il testo contenuto nel PDF viene estratto tramite la libreria *PyPDF2*
-- Nel secondo passaggio si usa la libreria *tabula* per estrarre solamente le tabelle dal file e poi vengono formattate in modo che il gatto le capisca.
+- Nel primo passaggio tutto il testo contenuto nel PDF viene estratto tramite l'OCR Tesseract
+- Nel secondo passaggio si usa la libreria *img2table* per estrarre solamente le tabelle dal file e poi vengono formattate in modo che il gatto le capisca (HTML).
 Dopo questi passaggi nel metadata del *Document* di ritorno vengono inserite le tabelle.
-
-Dopo il parsing, tramite l'hook *before_rabbithole_insert_memory* viene generato un embedding per ogni tabella e viene salvato nei metadata del *Document*
-
-[plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
-```python
-@hook
-def before_rabbithole_insert_memory(doc, cat):
-
-    if "tables" in doc.metadata.keys():
-        for table in doc.metadata["tables"]:
-            if not table["embed"]:
-                table_text = (
-                    table["table"]
-                    .replace("(", " ")
-                    .replace(")", " ")
-                    .replace("[", " ")
-                    .replace("]", " ")
-                )
-
-                table["embed"] = cat_embed.embed_table(
-                    table_text, doc.metadata["source"]
-                )
-
-    return doc
-```
-
-Visto che questi embedding verranno usati per selezionare la tabella richiesta dall'utene viene tolta tutta la formattazione delle tabelle tramite la funzione *replace*<br/>
-
-Quando viene fatto il retrival dei point vengono selezionate le tabelle apparteneni ai file da cui provengono facendo l'embedding della query e selezionando solo la tabella con score più alto (Quella meno distante secondo la cosine similarity). Tutto questo viene fatto all'interno dell'hook *after_cat_recalls_memories* nel file [plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py).<br/>
 
 ---
 
@@ -214,18 +191,16 @@ def before_cat_recalls_declarative_memories(declarative_recall_config, cat):
 ```
 ---
 
-Se si vuole che il gatto risponda usando certe parole invece che altre, esse si possono specificare nel file [wordlist.json](/CheshireCat/wordlist/wordlist.json), che è la lista di parole che si vuole che il gatto usi.<br/>
-Il file json viene inserito direttamente nel prefix, quindi è possibile specificare qualsiasi parola.
+Se si vuole che il gatto risponda usando certe parole invece che altre, esse si possono specificare nel file [wordlist.txt](/CheshireCat/wordlist/wordlist.txt), che è la lista di parole che si vuole che il gatto usi.<br/>
+Il file viene inserito direttamente nel prefix, quindi è possibile specificare qualsiasi parola.
 
 [plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
 
 ```python
 @hook
 def agent_prompt_prefix(prefix, cat):
-    with open("/app/cat/wordlist/wordlist.json", "r") as file:
-        data = json.load(file)
-
-    wordlist = json.dumps(data, indent=2)
+    with open("/app/cat/wordlist/wordlist.txt", "r") as file:
+        wordlist = file.read()
 
     prefix = f"""
     ........
