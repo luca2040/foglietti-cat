@@ -475,7 +475,7 @@ ocr_dict = {
 - Sostituire nella variabile ```files_path``` il path in cui sono salvati i pdf nel proprio computer locale; non importa se nel percorso indicato ci sono file con estensione diversa da ".pdf" o cartelle, lo script li ignorerà e passerà ad estrarre le tabelle solo nei pdf, salvando le tabelle estratte in ogni documento in un relativo file html.
 
 -  Essendo img2table una libreria basata su OCR, è possibile passarne uno custom inserendone la relativa istanza nel dizionario ```ocr_dict```, la key del dizionario può essere una stringa qualsiasi che viene usata per creare una cartella di output in cui saranno salvati i risultati ottenuti applicando quell'OCR: lo script infatti effettua l'estrazione delle tabelle usando ogni OCR al fine di avere dei risultati comparabili. <br/>
-Per far uso delle classi degli OCR è necessario effettuare la corretta installazione per ognuno di essi come riportato nella [documentazione della libreria](https://github.com/xavctn/img2table?tab=readme-ov-file#installation-). La comparazione dei vari OCR è riportata nei [prossimi paragrafi](https://github.com/luca2040/foglietti-cat/edit/main/diary.md#comparazione-ocr).
+Per far uso delle classi degli OCR è necessario effettuare la corretta installazione per ognuno di essi come riportato nella [documentazione della libreria](https://github.com/xavctn/img2table?tab=readme-ov-file#installation-). La comparazione dei vari OCR è riportata nei [prossimi paragrafi](https://github.com/luca2040/foglietti-cat/blob/main/diary.md#comparazione-ocr).
 
 Infine una volta accertate le funzionalità della libreria abbiamo implementato quest'ultima all'interno del parser del gatto, non solo per l'estrazione delle tabelle, ma anche per quella del testo.
 
