@@ -1,6 +1,18 @@
 # Conclusioni
----
-## Classificazione tabelle pdf
+In questa sezione riportiamo quali sono gli obiettivi raggiunti fino ad ora ripercorrendo brevemente alla loro soluzione.
+
+## Miglioramento retrieval
+Inizialmente il retrieval del gatto non era soddisfacente perchè  
+
+## Miglioramento parsing
+
+## Upload PDF tramite API
+
+## Rischi di prompt injection
+
+
+
+### Classificazione tabelle pdf
 
 <table>
     <thead>
