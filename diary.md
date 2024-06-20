@@ -1,6 +1,4 @@
-# foglietti-cat
-
-Use the CheshireCat AI to explain and read medicine informations
+# Diario stage 3/06/2024 - 21/06/2024
 
 ## Argomenti riunione 07/06/2024
 
