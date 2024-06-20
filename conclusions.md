@@ -1,5 +1,5 @@
 # Conclusioni
-In questa sezione riportiamo quali sono gli obiettivi raggiunti fino ad ora ripercorrendo brevemente alla loro soluzione.
+In questa sezione riportiamo quali sono gli obiettivi raggiunti fino ad ora ripercorrendo brevemente la loro soluzione.
 
 ## Miglioramento retrieval
 Inizialmente il retrieval del gatto non era soddisfacente perchè rischiava di ricavare le informazioni da qualsiasi foglietto, quindi rischiando di confonderle.<br/>
