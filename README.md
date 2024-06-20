@@ -4,9 +4,11 @@ Repository del plugin per il framework CheshireCat per riassumere e dare informa
 La repo è divisa in due parti: 
 - **CheshireCat** : Container docker e plugin CheshireCat
 - **CheshireCatAPI** : Upload di pdf a CheshireCat tramite API
+<br/>
 
-### **[Cambiamenti nel tempo](/diary.md)**
-### **[Problemi e cose varie](/conclusions.md)**
+- Lo stato attuale del progetto è descritto nella sezione **[conclusioni](/conclusions.md)**, contenente un riassunto degli obiettivi raggiunti a fine stage e degli eventuali problemi lasciati aperti.
+  
+- Se si volessero più dettagli si lascia disponibile nella sezione **[Diario stage 3/06/2024 - 21/06/2024](/diary.md)**, una descrizione giornaliera delle attività svolte giorno per giorno con i commenti originali.
 
 ![output](https://github.com/luca2040/foglietti-cat/assets/152313871/79775b1b-d4f7-4166-9ac2-9b7dec3b8177)
 
