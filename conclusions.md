@@ -1,4 +1,4 @@
-# Problemi
+# Conclusioni
 ---
 ## Classificazione tabelle pdf
 
@@ -37,8 +37,8 @@
         <tr>
             <td>ETI METADIGEST KETO NFI 30CPS BLISTER</td>
             <td><img src="https://github.com/luca2040/foglietti-cat/assets/152313871/f983049c-02f0-491d-a009-d90050feafe9"></td>
-            <td>Lasciamo stare</td>
-            <td>Stessa cosa</td>
+            <td>Nessuna informazione estratta</td>
+            <td>Nessuna informazione estratta</td>
             <td>Parsato molto male ma il gatto capisce qualcosina.
             <br/>Le tabelle sul PDF sono parsate ma con tantissime righe che non esistono</td>
         </tr>
