@@ -47,7 +47,7 @@
 
 ---
 
-## Il gatto risponde alla domanda su un farmaco usando le informazioni del farmaco caricato nella dichiarativa (Solved)
+## Il gatto risponde alla domanda su un farmaco usando le informazioni di un altro farmaco caricato nella memoria dichiarativa (Solved)
 
  ### Descrizione problema:
 
@@ -55,8 +55,8 @@
   sulla key "source" dei metadata usando il nome del PDF del farmaco in contesto.
   Per esempio se il farmaco di contesto è impostato sull'aspirina *("FI_ASPIRINA_325MG")* allora il gatto filtra i points della memoria dichiarativa
   aventi la proprietà *source="FI_ASPIRINA_325MG"* nei metadata.
-  Tale filtraggio è implementato nell'hook *before_cat_recalls_declarative_memories*, ed avviene in modo sistemastico usando come filtro il farmaco di contesto (che viene specificato prima che l'utente inizi la conversazione).
-  Tuttavia qualora l'utente ponesse una domanda specificando un altro farmaco nel mezzo della conversazione (lasciando quindi inalterato il farmaco di contesto) il risultato che si otterrebbe è indefinito e potrebbe risultare in una tra le 2 seguenti casistiche:
+  Tale filtraggio è implementato nell'hook *before_cat_recalls_declarative_memories*, ed avviene in modo sistematico usando come filtro il farmaco di contesto (che viene specificato prima che l'utente inizi la conversazione).
+  Tuttavia se l'utente ponesse una domanda specificando un altro farmaco nel mezzo della conversazione (lasciando quindi inalterato il farmaco di contesto) il risultato che si otterrebbe è indefinito e potrebbe risultare in una tra le 2 seguenti casistiche:
 
   1. Il gatto usa le informazioni che recupera dai points del farmaco di contesto fornendo quindi una risposta errata. Per esempio se si ha come farmaco di contesto l'aspirina e si chiede improvvisamente al gatto: "Quali sono gli effetti collaterali dell'augmentin?", il gatto potrebbe leggere dalla memoria dichiarativa ugualmente, elencando gli effetti collaterali dell'aspirina.
 
@@ -64,7 +64,7 @@
 
  ### Soluzione del problema:
 
- La soluzione al problema consiste semplicemente nel modificare il prefix facendo tenere conto al gatto di rispondere solamente a domande riguardanti il farmaco di contesto *(La variabile med_name nel codice)*
+ La soluzione al problema consiste semplicemente nel modificare il prefix obbligando il gatto a rispondere solamente a domande riguardanti il farmaco di contesto *(La variabile med_name nel codice)*
  bloccando preventivamente il verificarsi della situazione previo descritta.
 
  ```python
