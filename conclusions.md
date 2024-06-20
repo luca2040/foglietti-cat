@@ -2,15 +2,20 @@
 In questa sezione riportiamo quali sono gli obiettivi raggiunti fino ad ora ripercorrendo brevemente alla loro soluzione.
 
 ## Miglioramento retrieval
-Inizialmente il retrieval del gatto non era soddisfacente perchè  
+Inizialmente il retrieval del gatto non era soddisfacente perchè rischiava di ricavare le informazioni da qualsiasi foglietto, quindi rischiando di confonderle.<br/>
+La soluzione a questo problema è stata raggiunta impostando un tag per ciascun foglietto illustrativo e usarlo per ricavare solo quelli il tag del farmaco selezionato.
 
 ## Miglioramento parsing
+Il parser integrato del gatto dava alcuni problemi, soprattutto sulla parte di parsing delle tabelle, ciò è stato risolto usando l'OCR *Tesseract* e la libreria *img2table*, rispettivamente usati per il parsing di testo e tabelle all'interno dei PDF.
+Successivamente le tabelle parsate vengono formattate in HTML in modo che il gatto riesca a leggerne il contenuto.
 
 ## Upload PDF tramite API
+Questo problema è nato dal fatto che il Gatto non implementa nessuna callback strutturata nella risposta di upload file completato, quindi per ovviare questo problema si è usata una websocket aperta specificatamente per l'upload di file e si resta in ascolto fino a quando non viene ricevuta la frase "Finished reading ...", la frase non è strutturata quindi in futuro può causare dei problemi.
 
 ## Rischi di prompt injection
+Durante lo sviluppo del progetto si è pensato che un utente possa malevolmente cambiare la "personalità" del gatto facendo sì che non risponda come desiderato ma magari con informazioni errate. Per risolvere questo rischio sono state implementate nel prefix delle frasi atte ad evitare questo rischio.
 
-
+---
 
 ### Classificazione tabelle pdf
 
