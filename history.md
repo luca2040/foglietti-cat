@@ -488,3 +488,20 @@ L'idea iniziale era quella di sostituire l'html delle tabelle nella posizione co
 
 Durante la fase di comparazione degli OCR, ci si è accorti del seguente dettaglio riguardo la libreria: l'estrazione delle tabelle avviene la maggior parte delle volte senza usare l'OCR passato come argomento. Infatti l'OCR viene impiegato solamente per estrarre dati da eventuali immagini presenti nei pdf; pertanto se la tabella non è presente all'interno di un'immagine, la libreria non utilizzerà le funzionalità dell'OCR. Essendo tale casistiche presente per tutti i pdf, la scelta del miglior OCR rimane dunque irrilevante.
 
+## 20/06/2024
+
+### Richieste che sono state soddisfatte
+
+- Fornire una documentazione sul lavoro svolto ed organizzare un repository su github con le varie issues.
+
+- Migliorare il retrival del gatto:
+
+  - Farlo evitare di rispondere con informazioni non presenti nei foglietti illustrativi
+  - Forzare il contesto solamente su un determinato farmaco
+
+- Migliorare il parsing dei PDF, ovvero l'estrazione di informazioni sia testuali che tabulari.
+
+- Implementare l'upload dei file dall'API del gatto
+
+- Analizzare eventuali casi di prompt injection
+
