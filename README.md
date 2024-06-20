@@ -5,8 +5,8 @@ La repo è divisa in due parti:
 - **CheshireCat** : Container docker e plugin CheshireCat
 - **CheshireCatAPI** : Upload di pdf a CheshireCat tramite API
 
-### **[Cambiamenti nel tempo](/history.md)**
-### **[Problemi e cose varie](/description.md)**
+### **[Cambiamenti nel tempo](/diary.md)**
+### **[Problemi e cose varie](/conclusions.md)**
 
 ![output](https://github.com/luca2040/foglietti-cat/assets/152313871/79775b1b-d4f7-4166-9ac2-9b7dec3b8177)
 
