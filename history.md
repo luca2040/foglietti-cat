@@ -10,27 +10,27 @@ Use the CheshireCat AI to explain and read medicine informations
 
 2. Fornire la documentazione su un repository sullo stato attuale del lavoro, da tenere aggiornato (R)
 
-3. Il gatto non dà infomrazioni di farmaci di cui non ha la conoscenza in MODO DETERMINISTICO (R)
+3. Il gatto non dà informazioni di farmaci di cui non ha la conoscenza in MODO DETERMINISTICO (R)
 
 4. L'estrazione del nome del farmaco deve includere un match tra l'input fornito e l'elenco dei farmaci presenti (anche riguardante i vari farmaci disponibili) (R)
 
-5. Far evitare al gatto di rispondere a domande la cui risposta non è specificata direttamente nei foglietti illustrativi (per esempio far rispondere alla domanda "Qual è la differenza tra l'aspirina e l'acetilcisteina?" ?).
+5. Far evitare al gatto di rispondere a domande la cui risposta non è specificata direttamente nei foglietti illustrativi (per esempio il gatto non deve rispondere alla domanda "Qual è la differenza tra l'aspirina e l'acetilcisteina?" ?).
 
-6. Non popolare la memoria dichiarativa; lavorare sul miglioramento della funzione di distanza e predisporre un livello di soglia per lo score al di sotto della quale il gatto non risponde. (R)
+6. Lavorare sul miglioramento della funzione di distanza e predisporre un livello di soglia per lo score al di sotto della quale il gatto non risponde. (R)
 
-7. Non far rispondere al gatto a domande riguardanti un farmaco se il context della domanda è impostato su un altro farmaco ( Per esempio se gli ho detto di parlarmi dell'aspirina, non mi risponde a domande sulla tachipirina) (R)
+7. Non far rispondere al gatto a domande riguardanti un farmaco se il context della domanda è impostato su un altro farmaco ( Per esempio se gli ho detto di parlarmi dell'aspirina, non mi deve rispondere a domande sulla tachipirina) (R)
 
-8. Approfondire l'hack del # per escudere una specifica parte del prompt dalla domanda (es. # non usare il tool #).
+8. Approfondire l'hack del # per forzare istruzioni dal prompt (es. # non usare il tool #).
 
 9. Per le informazioni tabulari bisogna:
 
   - Spiegare nel prefix la struttura con cui viene fornita la tabella
-  - Struttura le informazioni per header di colonna e di riga e passare questa struttura al llm per parsare il risultato finale
+  - Strutturare le informazioni per header di colonna e di riga e passare questa struttura al LLM per parsare il risultato finale
   - Documentare in un pdf degli esempi di tabelle analizzate dal parser e descrivere gli eventuali problemi (R)
 
 10. Organizzazione del lavoro su git:
   - main -> conserva il codice che funziona in attesa di ulteriori merge
-  - deve essere staccato un branch per ogni task, nuovo branch -> nuova task
+  - nuovo branch -> deve essere staccato un branch per ogni task 
 
 ## 10/06/2024
 
@@ -60,7 +60,7 @@ def upload_file(
     return response
 ```
 ---
-Per capire quanto viene ricevuta una risposta viene aperta una websocket con lo stesso nome utente di quello usato per fare l'upload, e si aspetta la risposta del gatto.
+Per capire quando viene ricevuta una risposta viene aperta una websocket con lo stesso nome utente di quello usato per fare l'upload, e si aspetta la risposta del gatto.
 
 [websocket_functions.py](/CheshireCatAPI/websocket_functions.py)
 
@@ -80,7 +80,7 @@ def on_message(message: str) -> None:
 ### branch table-embedding
 
 Per poter selezionare solamente le tabelle a cui si sta facendo riferimento è necessario calcolare il vettore di ognuna.
-Dato il numero elevato dei point per documento è stata creata una classe che mantiene in memoria i punti di certe query che si ripetono ed evita di ri calcolare il vettore ogni volta.
+Dato il numero elevato dei point per documento è stata creata una classe che mantiene in memoria i punti di certe query che si ripetono ed evita di ricalcolare il vettore ogni volta.
 
 [optimized_embedder.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/optimized_embedder.py)
 
@@ -118,7 +118,7 @@ def cosine_similarity(query: List, point: List) -> float:
 
 ---
 
-Il parser ora salva nei metadata un dizionario composto da tabella e embed di essa per ogni tabella, in modo da poter salvare l'embed di ogni tabella nel metadata del point.
+Il parser ora salva nei metadata un dizionario composto da tabella e relativo embed per ognuna di esse, in modo da poter salvare l'embed nei metadata del point.
 
 [new_pdf_parser.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/new_pdf_parser.py)
 
@@ -203,7 +203,7 @@ def agent_prompt_prefix(prefix, cat):
 
 [plugin.py](/CheshireCat/plugins/CC_plugin_foglietti_illustrativi/plugin.py)
 
-E' stato esteso il prefix richidendo al gatto di rispondere esplicitamente in modo approfondito e descrittivo suddividendo i contenuti con un elenco puntato 
+E' stato esteso il prefix richiedendo al gatto di rispondere esplicitamente in modo approfondito e descrittivo suddividendo i contenuti con un elenco puntato 
 
 ```python
   @hook
@@ -228,8 +228,8 @@ def agent_prompt_prefix(prefix, cat):
 
 ### Riallineamento 
 
-E' stato aggiunto un nuovo requisito da implementare prima che il gatto fornisca la risposta; il comportamento da ottenere consiste, data una lista di parole chiave, di forzare il gatto ad usare precisamente quei termini per fornire una risposta al posto di impiegare altri sinonimi.<br/>
-Una seconda opzione potrebbe essere, al posto di forzare il gatto ad usare quelle parolo specifiche in fase di generazione della risposta, quella di effettuare un controllo a posteriori su di essa per individuare gli eventuali sinonimi impiegati e fare un mappaggio con le parole chiave.<br/>
+E' stato aggiunto un nuovo requisito da implementare prima che il gatto fornisca la risposta: il comportamento da ottenere consiste, data una lista di parole chiave, di forzare il gatto ad usare precisamente quei termini per fornire una risposta al posto di impiegare altri sinonimi.<br/>
+Una seconda opzione potrebbe essere, al posto di forzare il gatto ad usare quelle parole specifiche in fase di generazione della risposta, quella di effettuare un controllo a posteriori su di essa per individuare gli eventuali sinonimi impiegati e fare un mappaggio con le parole chiave.<br/>
 Inoltre è stato richiesto di effettuare maggiori prove al fine di testare la correttezza e il livello di precisione dell'output del gatto, magari anche variando il prefix per forzare una maggiore dipendenza al Context Of Documents.
 
 ---
@@ -260,11 +260,11 @@ La wordlist viene caricata direttamente dal file json e data nel prefix all'LLM,
 
 ---
 
-### Hook che vengono richiamati quando non servono
+### Tool che vengono richiamati quando non servono
 
-E' stato limitato  lo scenario in cui vengono richiamati degli hook quando si sta in realtà facendo una domanda la cui risposta deve essere basata sulla memoria dichiarativa. (non risolto al 100%, ma ridotto al punto da non essere fastidioso in fase di conversazione) <br/>
-Per farlo è bastato aumentare il valore di soglia (thresold) della memoria procedurale, andando quindi ad evitare che venga agganciato un hook quando lo score del prompt dell'utente sta al di sotto di tale soglia.
-Il thresold è stato impostato a 0.8, e tale scelta è frutto di semplici osservazioni empiriche con cui è stato riportato che l'aggancio del hook avviene correttamente quando lo score è superiore a tale valore.
+E' stato limitato lo scenario in cui vengono richiamati degli tool quando si sta in realtà facendo una domanda la cui risposta deve essere basata sulla memoria dichiarativa. (non risolto al 100%, ma ridotto al punto da non essere fastidioso in fase di conversazione) <br/>
+Per farlo è bastato aumentare il valore di soglia (thresold) della memoria procedurale, andando quindi ad evitare che venga agganciato un tool quando lo score del prompt dell'utente sta al di sotto di tale soglia.
+Il thresold è stato impostato a 0.8, e tale scelta è frutto di semplici osservazioni empiriche con cui è stato riportato che l'aggancio del tool avviene correttamente quando lo score è superiore a tale valore.
 
 ```python
   procedural_memory_thresold = 0.8
@@ -299,20 +299,20 @@ Per non vanificare il lavoro svolto fino ad ora la soluzione più immediata e ag
 
 1. Il gatto in una parte delle risposte usa ancora una parte di informazioni che non sono presenti nella memoria dichiarativa, ma che bensì derivano dal training del LLM. L'obiettivo da raggiungere è azzerare, o perlomeno ridurre a livello tollerabile, le informazioni che non sono presenti dai foglietti illustrativi ma che derivano dalla conoscenza del LLM. (R)
 
-2. Verificare il prompt injection ovvero i modi con cui l'utente riesce a far alterare il comportamento del gatto forzandolo a dare risposte che non dovrebbe dare. Da approfondire se e quanto l'uso dei cancelletti come hack (# istruzioni #) possa rappresentare un rischio per la generazione di prompt malevoli; sarebbe interessante dal punto di vista del prompt segnalare anche il bug di quando si passa al gatto una stringa json e questo intende i suoi campi come delle variabili.
+2. Verificare il prompt injection ovvero i modi con cui l'utente riesce a far alterare il comportamento del gatto forzandolo a dare risposte che non dovrebbe dare. Da approfondire se e quando l'uso dei cancelletti come hack (# istruzioni #) possa rappresentare un rischio per la generazione di prompt malevoli; sarebbe interessante dal punto di vista del prompt segnalare anche il bug di quando si passa al gatto una stringa json e questo intende i suoi campi come delle variabili.
 
 3. Qualora le domande dell'utente richiedano una risposta approfondita, il gatto deve rispondere in modo articolato, viceversa quando la domanda richiede un'informazione precisa la risposta deve essere concisa. Da tenere conto che la problematica principale riguardante questo punto riguarda la scelta del criterio con cui si può far intendere al gatto la necessità di una risposta articolata da una precisa. Nel suo svolgimento è quindi consigliabile di fornire al gatto una definizione del concetto di "articolato e preciso" a priori e poi testare come le sue risposte seguano il criterio prestabilito fino a raggiungere un risultato accettabile.
-Si rammenta che in ogni caso risposte troppo prolisse e sbrodolose non rientrano nel caso d'uso previsto per un farmacista, il quale si ipotizza che la maggior parte delle volte richiede una risposta la cui lettura sia veloce e le cui informazioni siano comunque precise. (R)
+Si rammenta che in ogni caso risposte troppo prolisse e sbrodolose non rientrano nel caso d'uso previsto per un farmacista, il quale si ipotizza che la maggior parte delle volte richieda una risposta la cui lettura sia veloce e le cui informazioni siano comunque precise. (R)
 
 4. Approfondire la causa del mancato filtraggio dei metadati quando si cambia embedder.
 
-5. Approfondire anche la task riguardante l'elenco dei sinonimi delle parole chiave. L'intento principale sarebbe quello di avere una risposta in cui eventuali sinonimi delle parole chiave predefinite, non siano presenti a fine di maggiore chiarezza; per esempio se come parola chiave ho il termine "medicinale", esso dovrà essere usato globalmente della risposta anche in sostituzione i altri sinonimi come "medicina", "farmaco", "cura" ecc. Per facilitare lo svolgimento della task si consiglia di usare come parole chiave termini poco comuni ma che siano parole palesi, ciò facilita la fase di analisi perchè consente di individuare subito se sono state operate le sostituzioni con le parole chiave. La seconda opzione che si può tenere conto è quella di effettuare un controllo a posteriore da parte del LLM dandogli la risposta del gatto e facendogli individuare gli eventuali sinonimi. (R)
+5. Approfondire anche la task riguardante l'elenco dei sinonimi delle parole chiave. L'intento principale sarebbe quello di avere una risposta in cui eventuali sinonimi delle parole chiave predefinite, non siano presenti a fine di maggiore chiarezza; per esempio se come parola chiave ho il termine "medicinale", esso dovrà essere usato globalmente della risposta anche in sostituzione di altri sinonimi come "medicina", "farmaco", "cura" ecc. Per facilitare lo svolgimento della task si consiglia di usare come parole chiave termini poco comuni ma che siano parole palesi, ciò facilita la fase di analisi perchè consente di individuare subito se sono state operate le sostituzioni con le parole chiave. La seconda opzione che si può tenere conto è quella di effettuare un controllo a posteriori da parte del LLM dandogli la risposta del gatto e facendogli individuare gli eventuali sinonimi. (R)
 
 ## 17/06/2024
 
 ### Creazione script per testare la libreria [img2table](https://github.com/xavctn/img2table) per il parsing delle tabelle nei pdf
 E' stata testata la libreria sopraddetta su un insieme di 121 pdf al fine di analizzare i risultati ottenuti per compararli con quelli delle altre librerie di estrazione tabelle precedentemente provate.
-Un riepilogo comparativo dell'accurattezza mostrata da ciascuna libreria è stata descritta nel documento "Problemi e cose varie" alla sezione ["Classificazione tabelle pdf"](https://github.com/luca2040/foglietti-cat/blob/main/description.md#classificazione-tabelle-pdf). <br/>
+Un riepilogo comparativo dell'accurattezza mostrata da ciascuna libreria è stata inserito nel documento "Problemi e cose varie" alla sezione ["Classificazione tabelle pdf"](https://github.com/luca2040/foglietti-cat/blob/main/description.md#classificazione-tabelle-pdf). <br/>
 L'adozione di questa libreria ha portato a risultati di un'accuratezza imparagonabile rispetto a quelle adottate in precedenza, riuscendo ad individuare tutte le tabelle presenti in un pdf e soprattutto permettendo di ottenere il risultato in un formato strutturato come HTML (tale caratteristica ha presentato un punto di svolta, in quanto librerie come "tabula" non consentivano di ottenere direttamente un formato standard per la rappresentazione di dati tabulari). 
 Il formato di uscita che è stato scelto di mantenere è l'HTML per via della sua semplicità, tuttavia l'altra opzione che offre la libreria è quella di ottenere la tabella parsata come un pandas DataFrame, da cui si potrebbero ricavare ulteriori formati come il csv ( opzione che però non è stata presa in considerazione, come spiegato nella [sezione successiva](https://github.com/luca2040/foglietti-cat/edit/main/history.md#scelta-formato-strutturato-per-dati-tabulari-da-passare-al-gatto) ).
 Si riporta lo script impiegato per effettuare i test, a fini di replicazione:
@@ -477,7 +477,7 @@ ocr_dict = {
 -  Essendo img2table una libreria basata su OCR, è possibile passarne uno custom inserendone la relativa istanza nel dizionario ```ocr_dict```, la key del dizionario può essere una stringa qualsiasi che viene usata per creare una cartella di output in cui saranno salvati i risultati ottenuti applicando quell'OCR: lo script infatti effettua l'estrazione delle tabelle usando ogni OCR al fine di avere dei risultati comparabili. <br/>
 Per far uso delle classi degli OCR è necessario effettuare la corretta installazione per ognuno di essi come riportato nella [documentazione della libreria](https://github.com/xavctn/img2table?tab=readme-ov-file#installation-). La comparazione dei vari OCR è riportata nei [prossimi paragrafi](https://github.com/luca2040/foglietti-cat/edit/main/history.md#comparazione-ocr).
 
-Infine una volte accertate le funzionalità della libreria abbiamo implementato quest'ultima all'interno del parser del gatto, non solo per l'estrazione delle tabelle, ma anche per quella del testo.
+Infine una volta accertate le funzionalità della libreria abbiamo implementato quest'ultima all'interno del parser del gatto, non solo per l'estrazione delle tabelle, ma anche per quella del testo.
 
 ### Scelta formato strutturato per dati tabulari da passare al gatto
 
@@ -496,12 +496,12 @@ Durante la fase di comparazione degli OCR, ci si è accorti del seguente dettagl
 
 - Migliorare il retrival del gatto:
 
-  - Farlo evitare di rispondere con informazioni non presenti nei foglietti illustrativi
-  - Forzare il contesto solamente su un determinato farmaco
+  - Farlo evitare di rispondere con informazioni non presenti nei foglietti illustrativi.
+  - Forzare il contesto solamente su un determinato farmaco.
 
 - Migliorare il parsing dei PDF, ovvero l'estrazione di informazioni sia testuali che tabulari.
 
-- Implementare l'upload dei file dall'API del gatto
+- Implementare l'upload dei file dall'API del gatto.
 
-- Analizzare eventuali casi di prompt injection
+- Analizzare eventuali casi di prompt injection.
 
