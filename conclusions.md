@@ -16,7 +16,7 @@ Questo problema è nato dal fatto che il Gatto non implementa nessuna callback s
 Durante lo sviluppo del progetto si è pensato che un utente possa malevolmente cambiare la "personalità" del gatto facendo sì che non risponda come desiderato ma magari con informazioni errate. Per risolvere questo rischio sono state implementate nel prefix delle frasi atte ad evitare questo rischio.
 
 ## Uso di parole chiave
-Ci è stato inviato un documento contenente una lista di parole chiave che sarebbero dovute comparire nella risposta fornita dal gatto con dei link.<br/>
+Ci è stato inviato un documento contenente una lista di parole chiave che sarebbero dovute comparire nella risposta fornita dal gatto con dei link.
 Insieme a queste parole erano definiti inoltre i relativi sinonimi; la richiesta era quella di far evitare al gatto di rispondere usando questi sinonimi ma preferendo la parole chiave a fine di maggiore chiarezza.
 E' stato quindi forzato il gatto ad usare nella risposta le parole contenute nella lista, che gli sono state passate in formato json, al posto di altri sinonimi. Ciò consentirà in futuro di applicare i link d'interesse
 sulle parole.
