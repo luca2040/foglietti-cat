@@ -15,6 +15,9 @@ Questo problema è nato dal fatto che il Gatto non implementa nessuna callback s
 ## Rischi di prompt injection
 Durante lo sviluppo del progetto si è pensato che un utente possa malevolmente cambiare la "personalità" del gatto facendo sì che non risponda come desiderato ma magari con informazioni errate. Per risolvere questo rischio sono state implementate nel prefix delle frasi atte ad evitare questo rischio.
 
+## Uso di parole chiave
+Ci è stato inviato un documento contenente una lista di parole chiave che sarebbero dovute comparire nella risposta fornita dal gatto con dei link. Abbiamo pertanto forzato il gatto a far uso di queste parole caricandogli la lista in formato JSON cosicché in futuro sarà possibile assegnare i relativi link nella risposta.
+
 ---
 
 ### Classificazione tabelle pdf
