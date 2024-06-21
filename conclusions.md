@@ -17,9 +17,13 @@ Durante lo sviluppo del progetto si è pensato che un utente possa malevolmente 
 
 ## Uso di parole chiave
 Ci è stato inviato un documento contenente una lista di parole chiave che sarebbero dovute comparire nella risposta fornita dal gatto con dei link.<br/>
-Abbiamo pertanto forzato il gatto a far uso di queste parole caricandogli la lista in formato JSON cosicché in futuro sarà possibile assegnare i relativi link nella risposta.
+Insieme a queste parole erano definiti inoltre i relativi sinonimi; la richiesta era quella di far evitare al gatto di rispondere usando questi sinonimi ma preferendo la parole chiave a fine di maggiore chiarezza.
+E' stato quindi forzato il gatto ad usare nella risposta le parole contenute nella lista, che gli sono state passate in formato json, al posto di altri sinonimi. Ciò consentirà in futuro di applicare i link d'interesse
+sulle parole.
 
 ---
+
+# Problemi aperti
 
 ### Classificazione tabelle pdf
 
