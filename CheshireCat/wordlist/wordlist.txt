@@ -1,8 +1,13 @@
 [
-    "caratteristiche" -> "informazioni",
-    "applicazione" -> "indicazione" / "indicazioni",
-    "controindicazioni" -> "effetti indesiderati",
-    "effetti collaterali" -> "effetti indesiderati",
-    "note" -> "istruzioni per l'uso",
-    "dosaggio" -> "applicazione" / "quantità di riferimento"
+    "Wirkung" -> "Merkmale",
+    "Wirkungsweise" -> "Merkmale",
+    "Stoffinformation" -> "Merkmale",
+    "Indikation" -> "Anwendungsgebiet",
+    "Einsatz" -> "Anwendungsgebiet",
+    "Verwendung" -> "Anwendungsgebiet",
+    "Überempfindlich" -> "Kontraindikation",
+    "Anwendungsbeschränkungen" -> "Kontraindikation",
+    "Kombination" -> "Interaktion",
+    "Gleichzeitig" -> "Interaktion",
+    "Wechselwirkungen" -> "Interaktion"
 ]
