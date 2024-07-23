@@ -1,25 +1,16 @@
-version: '3.7'
+version: '3.8'
 
 services:
 
-  cheshire-cat-core:
-    image: ghcr.io/cheshire-cat-ai/core:latest
-    container_name: cheshire_cat_core
-    command:
-      - /bin/bash
-      - -c
-      - |
-        bash -c "apt update && apt install -y default-jre && apt install -y tesseract-ocr && apt install -y libtesseract-dev"
-        bash -c "cd /usr/share/tesseract-ocr/4.00/tessdata && curl -H 'Accept: application/vnd.github.v3.raw' -O -L https://api.github.com/repos/tesseract-ocr/tessdata/contents/ita.traineddata"
-        bash -c "python3 -m cat.main"
+  ask-stella-rag:
+    image: cgm-g3-pharmacy.docker.artifactory.cgm.ag/ask-stella-rag:latest
+    container_name: ask-stella-rag
     depends_on:
       - cheshire-cat-vector-memory
     ports:
       - ${CORE_PORT:-1865}:80
-      - 5678:5678
     environment:
       - PYTHONUNBUFFERED=1
-      - WATCHFILES_FORCE_POLLING=true
       - CORE_HOST=${CORE_HOST:-localhost}
       - CORE_PORT=${CORE_PORT:-1865}
       - QDRANT_HOST=${QDRANT_HOST:-cheshire_cat_vector_memory}
@@ -29,24 +20,12 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-WARNING}
       - DEBUG=${DEBUG:-true}
       - SAVE_MEMORY_SNAPSHOTS=${SAVE_MEMORY_SNAPSHOTS:-false}
-      # - JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    env_file:
+      - ./.env
     volumes:
-      - ./static:/app/cat/static
-      - ./plugins:/app/cat/plugins
-      - ./data:/app/cat/data
-      - ./fastembed_cache:/tmp/fastembed_cache
-      - ./wordlist:/app/cat/wordlist
-      # - site-packages:/usr/local/lib/python3.10/site-packages
-      # - ./.java:/usr/lib/jvm
+      - ./data/models:/app/cat/data/models
     restart: unless-stopped
-
-  # java:
-  #   image: alpine:latest
-  #   container_name: java_cat
-  #   working_dir: /java
-  #   command: "apk add openjdk11"
-  #   volumes:
-  #     - ./.java/:/usr/lib/jvm
 
   cheshire-cat-vector-memory:
     image: qdrant/qdrant:v1.9.1
@@ -56,6 +35,3 @@ services:
     volumes:
       - ./cat/long_term_memory/vector:/qdrant/storage
     restart: unless-stopped
-
-# volumes:
-#   - site-packages: {}
