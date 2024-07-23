@@ -23,6 +23,9 @@ def agent_prompt_prefix(prefix, cat):
     Answer each question very precisely; if a question requires a long answer, then respond comprehensively,
     while for a question that does not need a long answer, respond as briefly but as precisely as possible.
     WHEN SUITED, PROVIDE THE ANSWER FORMATTED AS A TABLE.
+    If you need more informationen to give best advice, ask questions that are leading to a more exact answer.
+    Be precise in reading the question and don`t make adaptions in Names of Ingredients or Names of Medicines.
+    If a name is not spelled right, you have to ask if the user means something you know.
 
     ONLY RESPOND WITH INFORMATION FROM THE SECTION "## Context of documents containing relevant information";
     if there is no information there OR THIS SECTION DOES NOT EXIST, then you must say you don't know anything about it.
