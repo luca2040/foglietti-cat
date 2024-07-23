@@ -8,11 +8,11 @@ RUN cd /usr/share/tesseract-ocr/4.00/tessdata && \
 
 VOLUME [ "/app/cat/data/models" ]
 
-COPY plugins/CC_plugin_foglietti_illustrativi/requirements.txt /app/cat/plugins/CC_plugin_foglietti_illustrativi/requirements.txt
-RUN pip install -r /app/cat/plugins/CC_plugin_foglietti_illustrativi/requirements.txt
+COPY plugins/cc_ask_stella/requirements.txt /app/cat/plugins/cc_ask_stella/requirements.txt
+RUN pip install -r /app/cat/plugins/cc_ask_stella/requirements.txt
 
 COPY .docker/metadata.json /app/cat/data/metadata.json
 COPY wordlist/wordlist.txt /app/cat/wordlist/wordlist.txt
-COPY plugins/CC_plugin_foglietti_illustrativi /app/cat/plugins/CC_plugin_foglietti_illustrativi
+COPY plugins/cc_ask_stella /app/cat/plugins/cc_ask_stella
 
 CMD ["python3", "-m", "cat.main"]

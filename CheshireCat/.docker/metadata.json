@@ -3,7 +3,7 @@
         "1": {
             "name": "active_plugins",
             "value": [
-                "CC_plugin_foglietti_illustrativi",
+                "cc_ask_stella",
                 "core_plugin"
             ],
             "category": null,

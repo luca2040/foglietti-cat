@@ -1,22 +1,22 @@
-version: '3.8'
-
 services:
 
   cheshire-cat-core:
-    image: cgm-g3-pharmacy.docker.artifactory.cgm.ag/ask-stella-rag:latest
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
     profiles:
       - dev
     container_name: ask-stella-rag-dev
     depends_on:
       - cheshire-cat-vector-memory
     ports:
-      - ${CORE_DEV_PORT:-1866}:80
+      - ${CORE_DEV_PORT:-1865}:80
       - 5678:5678
     environment:
       - PYTHONUNBUFFERED=1
       - WATCHFILES_FORCE_POLLING=true
       - CORE_HOST=${CORE_HOST:-localhost}
-      - CORE_DEV_PORT=${CORE_DEV_PORT:-1866}
+      - CORE_PORT=${CORE_DEV_PORT:-1865}
       - QDRANT_HOST=${QDRANT_HOST:-cheshire_cat_vector_memory}
       - QDRANT_PORT=${QDRANT_PORT:-6333}
       - CORE_USE_SECURE_PROTOCOLS=${CORE_USE_SECURE_PROTOCOLS:-}
@@ -24,31 +24,68 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-WARNING}
       - DEBUG=${DEBUG:-true}
       - SAVE_MEMORY_SNAPSHOTS=${SAVE_MEMORY_SNAPSHOTS:-false}
+      - ASK_STELLA_LANGUAGE=italian
+      - ASK_STELLA_FILENAME_FORMAT=FI_<name of medicine>.PDF
     volumes:
       - ./plugins:/app/cat/plugins
       - ./data:/app/cat/data
       - ./wordlist:/app/cat/wordlist
     restart: unless-stopped
 
-  ask-stella-rag:
-    image: cgm-g3-pharmacy.docker.artifactory.cgm.ag/ask-stella-rag:latest
-    container_name: ask-stella-rag
+  ask-stella-rag-ita:
+    image: cgm-g3-pharmacy.docker.artifactory.cgm.ag/ask-stella-rag-ita:latest
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+    container_name: ask-stella-rag-ita
     depends_on:
       - cheshire-cat-vector-memory
     ports:
-      - ${CORE_PORT:-1865}:80
+      - ${CORE_ITA_PORT:-1866}:80
     environment:
       - PYTHONUNBUFFERED=1
       - CORE_HOST=${CORE_HOST:-localhost}
-      - CORE_PORT=${CORE_PORT:-1865}
+      - CORE_PORT=${CORE_ITA_PORT:-1866}
       - QDRANT_HOST=${QDRANT_HOST:-cheshire_cat_vector_memory}
       - QDRANT_PORT=${QDRANT_PORT:-6333}
       - CORE_USE_SECURE_PROTOCOLS=${CORE_USE_SECURE_PROTOCOLS:-}
       - API_KEY=${API_KEY:-}
-      - LOG_LEVEL=${LOG_LEVEL:-WARNING}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - DEBUG=${DEBUG:-true}
       - SAVE_MEMORY_SNAPSHOTS=${SAVE_MEMORY_SNAPSHOTS:-false}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ASK_STELLA_LANGUAGE=italian
+      - ASK_STELLA_FILENAME_FORMAT=FI_<name of medicine>.PDF
+    env_file:
+      - ./.env
+    volumes:
+      - ./data/models:/app/cat/data/models
+    restart: unless-stopped
+
+  ask-stella-rag-deu:
+    image: cgm-g3-pharmacy.docker.artifactory.cgm.ag/ask-stella-rag-deu:latest
+    build:
+      context: .
+      dockerfile: .docker/Dockerfile
+    container_name: ask-stella-rag-deu
+    depends_on:
+      - cheshire-cat-vector-memory
+    ports:
+      - ${CORE_DEU_PORT:-1867}:80
+    environment:
+      - PYTHONUNBUFFERED=1
+      - CORE_HOST=${CORE_HOST:-localhost}
+      - CORE_PORT=${CORE_DEU_PORT:-1867}
+      - QDRANT_HOST=${QDRANT_HOST:-cheshire_cat_vector_memory}
+      - QDRANT_PORT=${QDRANT_PORT:-6333}
+      - CORE_USE_SECURE_PROTOCOLS=${CORE_USE_SECURE_PROTOCOLS:-}
+      - API_KEY=${API_KEY:-}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DEBUG=${DEBUG:-true}
+      - SAVE_MEMORY_SNAPSHOTS=${SAVE_MEMORY_SNAPSHOTS:-false}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ASK_STELLA_LANGUAGE=german
+      - ASK_STELLA_FILENAME_FORMAT=FDOK_DB.Dokument.<number>.PDF
     env_file:
       - ./.env
     volumes:
