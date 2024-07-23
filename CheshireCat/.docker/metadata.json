@@ -1,0 +1,55 @@
+{
+    "_default": {
+        "1": {
+            "name": "active_plugins",
+            "value": [
+                "cc_ask_stella",
+                "core_plugin"
+            ],
+            "category": null,
+            "setting_id": "1fe8bdc3-5445-4c12-b586-105cc2b96294",
+            "updated_at": 1721654025
+        },
+        "2": {
+            "name": "embedder_selected",
+            "value": {
+                "name": "EmbedderQdrantFastEmbedConfig"
+            },
+            "category": "embedder",
+            "setting_id": "117ff0ca-de41-45c7-b9d2-f375e66bfde7",
+            "updated_at": 1721655831
+        },
+        "3": {
+            "name": "LLMOpenAIChatConfig",
+            "value": {
+                "model_name": "gpt-4o-mini",
+                "temperature": 0.7,
+                "streaming": true
+            },
+            "category": "llm_factory",
+            "setting_id": "3d181e2d-db55-4a09-b14e-3fbf10e0c1d6",
+            "updated_at": 1721654472
+        },
+        "4": {
+            "name": "llm_selected",
+            "value": {
+                "name": "LLMOpenAIChatConfig"
+            },
+            "category": "llm",
+            "setting_id": "9e850e60-1710-435f-81f3-5ceb53cffa86",
+            "updated_at": 1721654472
+        },
+        "11": {
+            "name": "EmbedderQdrantFastEmbedConfig",
+            "value": {
+                "model_name": "intfloat/multilingual-e5-large",
+                "max_length": 8192,
+                "doc_embed_type": "passage",
+                "cache_dir": "cat/data/models/fast_embed"
+            },
+            "category": "embedder_factory",
+            "setting_id": "1e522818-39f6-4fc1-acf8-822cfcfb4c59",
+            "updated_at": 1721655831
+        }
+    }
+}
