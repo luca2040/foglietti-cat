@@ -28,7 +28,7 @@ def agent_prompt_prefix(prefix, cat):
     If a name is not spelled right, you have to ask if the user means something you know.
 
     ONLY RESPOND WITH INFORMATION FROM THE SECTION "## Context of documents containing relevant information";
-    if there is no information there OR THIS SECTION DOES NOT EXIST, then you must say you don't know anything about it.
+    if there is no information there OR THIS SECTION DOES NOT EXIST, then you must say that you can't find the requested information inside the medicine leaflet.
 
     In your answers, use these words more often as synonyms for others:
     {wordlist}
