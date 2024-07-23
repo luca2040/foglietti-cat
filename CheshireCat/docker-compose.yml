@@ -24,10 +24,12 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-WARNING}
       - DEBUG=${DEBUG:-true}
       - SAVE_MEMORY_SNAPSHOTS=${SAVE_MEMORY_SNAPSHOTS:-false}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - ASK_STELLA_LANGUAGE=italian
       - ASK_STELLA_FILENAME_FORMAT=FI_<name of medicine>.PDF
     volumes:
       - ./plugins:/app/cat/plugins
+      - ./data/models:/app/cat/data/models
       - ./data:/app/cat/data
       - ./wordlist:/app/cat/wordlist
     restart: unless-stopped

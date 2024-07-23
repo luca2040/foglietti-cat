@@ -104,14 +104,22 @@ def how_many_medicines_known(tool_input, cat):
     return out_text
 
 
+def docstring_parameters(*sub):
+    def dec(obj):
+        obj.__doc__ = obj.__doc__.format(*sub)
+        return obj
+    return dec
+
+marker = "#use tool#"
 @tool(return_direct=True)
+@docstring_parameters(marker, format)
 def filename(tool_input: str, cat):
-    marker = "#use tool#"
-    f"""
-    Respond ONLY if the user's prompt is a string (representing the filename of the medicine) in this format: "{marker}{format}".
+    """
+    Respond ONLY if the user's prompt is a string (representing the filename of the medicine) in this format: "{0}{1}".
     This tool should not be used if the user specifies only the name of the medicine or includes additional text in the prompt,
     but the only way to activate the tool is by writing ONLY and PERFECTLY a string in the format specified above.
-    The input is the entire string containing the filename of the medicine. """
+    The input is the entire string containing the filename of the medicine.
+    """
 
     global med_filename
     global med_name
